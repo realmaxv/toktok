@@ -1,15 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import "./App.css";
 import RootLayout from "./layouts/RootLayout";
-import HomePage from "./pages/HomePage";
-import WrongPage from "./pages/WrongPage";
+import HomeFeed from "./pages/HomeFeed";
 
 const router = createBrowserRouter([
   {
     Component: RootLayout,
     children: [
-      { path: "/", Component: HomePage },
-      { path: "*", Component: WrongPage },
+      { path: "/", Component: HomeFeed },
+      { path: "*", Component: HomeFeed },
     ],
   },
 ]);
