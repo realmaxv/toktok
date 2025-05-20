@@ -1,8 +1,10 @@
-import { House } from "lucide-react";
-import { Search } from "lucide-react";
-import { CirclePlus } from "lucide-react";
-import { User } from "lucide-react";
-import { NavLink } from "react-router";
+
+import { House } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { CirclePlus } from 'lucide-react';
+import { User } from 'lucide-react';
+import { NavLink } from 'react-router';
+
 
 function Footer() {
   return (
