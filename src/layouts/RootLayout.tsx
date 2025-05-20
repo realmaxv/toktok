@@ -1,10 +1,13 @@
+import { ThemeProvider } from "@/components/DarkMode/theme-provider";
 import { Outlet } from "react-router";
 
 const RootLayout = () => {
   return (
-    <main>
-      <Outlet />
-    </main>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <main className="font-[urbanist]">
+        <Outlet />
+      </main>
+    </ThemeProvider>
   );
 };
 

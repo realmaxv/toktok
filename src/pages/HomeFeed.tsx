@@ -1,5 +1,13 @@
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+
 function HomeFeed() {
-  return <div>HomePage</div>;
+  return (
+    <main className="">
+      <Header />
+      <Footer />
+    </main>
+  );
 }
 
 export default HomeFeed;
