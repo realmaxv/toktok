@@ -1,5 +1,5 @@
-import logo from "@/assets/logo_toktok.png";
-import { ModeToggle } from "./DarkMode/mode-toggle";
+import logo from '@/assets/logo.svg';
+import { ModeToggle } from './DarkMode/mode-toggle';
 
 function Header() {
   return (
