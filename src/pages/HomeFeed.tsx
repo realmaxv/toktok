@@ -1,5 +1,3 @@
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
 import { mockPosts, mockUsers } from "../mockData"; 
 
 function HomeFeed() {
@@ -9,9 +7,7 @@ function HomeFeed() {
   console.log("dynamic posts:", posts); 
 
   return (
-    <main className="">
-      <Header /> 
-    
+    <div className="">
       <h1>newst posts</h1>
       <ul>
         {posts.map((post) => (
@@ -20,8 +16,7 @@ function HomeFeed() {
           </li>
         ))}
       </ul>
-      <Footer /> 
-    </main>
+    </div>
   );
 }
 

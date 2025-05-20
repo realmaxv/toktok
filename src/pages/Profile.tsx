@@ -1,7 +1,5 @@
 import { ModeToggle } from '@/components/DarkMode/mode-toggle';
 import { mockUsers, mockPosts } from '../mockData';
-import Footer from '@/components/Footer';
-import ProfileHeader from '@/components/ProfileHeader';
 
 function Profile() {
   console.log('Profile loaded');
@@ -20,7 +18,7 @@ function Profile() {
 
   return (
     <>
-      <ProfileHeader />
+      
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1>User Profile</h1>
         {currentUser && (
@@ -46,7 +44,6 @@ function Profile() {
         <div className="flex items-center justify-center">
           <ModeToggle />
         </div>
-        <Footer />
       </div>
     </>
   );
