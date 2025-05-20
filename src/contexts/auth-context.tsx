@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 type AuthContext = {
   session: Session | null;
+  isLoading: boolean;
   signOut: () => void;
 };
 
@@ -14,6 +15,7 @@ export function AuthContextProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
@@ -24,6 +26,7 @@ export function AuthContextProvider({
       } else {
         setSession(null);
       }
+      setLoading(false);
     });
 
     const listener = supabase.auth.onAuthStateChange((_event, session) => {
@@ -40,7 +43,7 @@ export function AuthContextProvider({
   };
 
   return (
-    <authContext.Provider value={{ signOut, session }}>
+    <authContext.Provider value={{ signOut, session, isLoading: loading }}>
       {children}
     </authContext.Provider>
   );
