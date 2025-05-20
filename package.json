@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typegen": "npx supabase gen types --lang=typescript --project-id nwyqrzstdmlhgwtucsks --schema public > src/types/supabase.ts"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.14",
