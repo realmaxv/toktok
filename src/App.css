@@ -1,0 +1,8 @@
+@font-face {
+  font-family: "urbanist";
+  src: url(./assets/fonts/Urbanist/Urbanist-VariableFont_wght.ttf);
+}
+
+.active {
+  @apply fill-[hsl(351,100%,65%)];
+}
