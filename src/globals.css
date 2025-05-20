@@ -1,0 +1,11 @@
+/* @font-face */
+@font-face {
+  font-family: 'urbanist';
+  src: url(./assets/fonts/Urbanist/Urbanist-VariableFont_wght.ttf);
+}
+
+/* Custom color for navigation */
+
+:root {
+  --color-brand-pink: #ff4d67;
+}
