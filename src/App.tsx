@@ -1,3 +1,4 @@
+
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import RootLayout from './layouts/RootLayout';
 import HomeFeed from './pages/HomeFeed';
@@ -6,6 +7,7 @@ import Profile from './pages/Profile';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
 import Search from './pages/Search';
+
 
 const router = createBrowserRouter([
   {
@@ -24,6 +26,7 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
+  console.log("App, router:", router);
   return <RouterProvider router={router} />;
 }
 

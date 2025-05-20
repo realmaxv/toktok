@@ -1,5 +1,4 @@
 import { Moon, Sun } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,15 +10,20 @@ import { useTheme } from "@/components/DarkMode/theme-provider";
 import { useState } from "react";
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
-  const [light, setLight] = useState(false);
+  const { setTheme } = useTheme(); 
+  const [light, setLight] = useState(false); 
+
+  console.log("ModeToggle initial:", light ? "light" : "dark"); 
 
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
-    setLight((old) => !old);
+    console.log("click mode toggle", light); 
+    setLight((old) => !old); 
     if (light) {
-      setTheme("light");
+      setTheme("light"); 
+      console.log("switch to light mode"); 
     } else {
-      setTheme("dark");
+      setTheme("dark"); 
+      console.log("switch to dark mode"); 
     }
   };
 
@@ -27,6 +31,7 @@ export function ModeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button onClick={handleClick} variant="outline" size="icon">
+       
           {!light && (
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           )}
@@ -35,6 +40,7 @@ export function ModeToggle() {
           )}
         </Button>
       </DropdownMenuTrigger>
+    
     </DropdownMenu>
   );
 }

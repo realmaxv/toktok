@@ -1,0 +1,36 @@
+
+export const mockUsers = [
+  { id: 1, username: "john_doe", name: "John Doe", role: "UI/UX Designer", bio: "热爱设计与技术", website: "www.johndoe.com" },
+  { id: 2, username: "jane_smith", name: "Jane Smith", role: "Developer", bio: "代码爱好者", website: "www.janesmith.com" },
+  { id: 3, username: "alex_wong", name: "Alex Wong", role: "Photographer", bio: "捕捉生活瞬间", website: "www.alexwong.com" },
+  { id: 4, username: "mary_jones", name: "Mary Jones", role: "Writer", bio: "文字的力量", website: "www.maryjones.com" },
+  { id: 5, username: "peter_lee", name: "Peter Lee", role: "Artist", bio: "创意无极限", website: "www.peterlee.com" },
+  { id: 6, username: "sara_kim", name: "Sara Kim", role: "Marketer", bio: "品牌故事讲述者", website: "www.sarakim.com" },
+  { id: 7, username: "david_chen", name: "David Chen", role: "Engineer", bio: "技术驱动未来", website: "www.davidchen.com" },
+  { id: 8, username: "emma_li", name: "Emma Li", role: "Designer", bio: "美学追求者", website: "www.emmali.com" },
+  { id: 9, username: "tom_yang", name: "Tom Yang", role: "Entrepreneur", bio: "创新先锋", website: "www.tomyang.com" },
+  { id: 10, username: "lisa_zhang", name: "Lisa Zhang", role: "Content Creator", bio: "分享生活点滴", website: "www.lisazhang.com" },
+];
+
+export const mockPosts = [
+  { id: 1, userId: 1, content: "第一张照片", image: "image_demo.jpg", likes: 120, comments: 15, createdAt: "2025-05-19" },
+  { id: 2, userId: 2, content: "代码分享", image: "image_demo.jpg", likes: 85, comments: 10, createdAt: "2025-05-18" },
+  { id: 3, userId: 3, content: "自然风景", image: "image_demo.jpg", likes: 200, comments: 25, createdAt: "2025-05-17" },
+  { id: 4, userId: 4, content: "新文章发布", image: "image_demo.jpg", likes: 60, comments: 8, createdAt: "2025-05-16" },
+  { id: 5, userId: 5, content: "艺术作品", image: "image_demo.jpg", likes: 150, comments: 20, createdAt: "2025-05-15" },
+  { id: 6, userId: 6, content: "营销策略", image: "image_demo.jpg", likes: 90, comments: 12, createdAt: "2025-05-14" },
+  { id: 7, userId: 7, content: "技术笔记", image: "image_demo.jpg", likes: 110, comments: 18, createdAt: "2025-05-13" },
+  { id: 8, userId: 8, content: "设计灵感", image: "image_demo.jpg", likes: 130, comments: 22, createdAt: "2025-05-12" },
+  { id: 9, userId: 9, content: "创业心得", image: "image_demo.jpg", likes: 70, comments: 9, createdAt: "2025-05-11" },
+  { id: 10, userId: 10, content: "生活记录", image: "image_demo.jpg", likes: 95, comments: 14, createdAt: "2025-05-10" },
+  { id: 11, userId: 1, content: "第二张照片", image: "image_demo.jpg", likes: 100, comments: 13, createdAt: "2025-05-09" },
+  { id: 12, userId: 2, content: "算法分享", image: "image_demo.jpg", likes: 80, comments: 11, createdAt: "2025-05-08" },
+  { id: 13, userId: 3, content: "城市夜景", image: "image_demo.jpg", likes: 180, comments: 23, createdAt: "2025-05-07" },
+  { id: 14, userId: 4, content: "写作技巧", image: "image_demo.jpg", likes: 50, comments: 7, createdAt: "2025-05-06" },
+  { id: 15, userId: 5, content: "画作展示", image: "image_demo.jpg", likes: 140, comments: 19, createdAt: "2025-05-05" },
+  { id: 16, userId: 6, content: "广告创意", image: "image_demo.jpg", likes: 85, comments: 10, createdAt: "2025-05-04" },
+  { id: 17, userId: 7, content: "工程项目", image: "image_demo.jpg", likes: 105, comments: 16, createdAt: "2025-05-03" },
+  { id: 18, userId: 8, content: "UI 设计", image: "image_demo.jpg", likes: 125, comments: 21, createdAt: "2025-05-02" },
+  { id: 19, userId: 9, content: "商业计划", image: "image_demo.jpg", likes: 65, comments: 8, createdAt: "2025-05-01" },
+  { id: 20, userId: 10, content: "旅行日记", image: "image_demo.jpg", likes: 90, comments: 12, createdAt: "2025-04-30" },
+];

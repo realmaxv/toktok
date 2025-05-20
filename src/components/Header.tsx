@@ -2,6 +2,7 @@ import logo from '@/assets/logo.svg';
 import { ModeToggle } from './DarkMode/mode-toggle';
 
 function Header() {
+  console.log("header");
   return (
     <header className="flex items-center justify-between p-6 ">
       <div className="flex items-center justify-center gap-3">
