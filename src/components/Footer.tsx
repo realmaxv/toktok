@@ -1,14 +1,11 @@
-import homebutton from "@/assets/Iconly/Bold/Vector.svg";
-
 function Footer() {
   return (
     <footer className="w-full h-20 fixed bottom-0 flex items-center justify-between p-6">
-      <div className="">
+      <div className="fill-yellow-500">
         <svg
           width="21"
           height="22"
           viewBox="0 0 21 22"
-          fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
@@ -46,44 +43,7 @@ function Footer() {
           />
         </svg>
       </div>
-      <div>
-        <svg
-          width="25"
-          height="24"
-          viewBox="0 0 25 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g id="Group">
-            <path
-              id="Line"
-              d="M12.9364 6.10437V18.0184"
-              stroke="#9E9E9E"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              id="Line_2"
-              d="M18.8994 12.0614H6.97308"
-              stroke="#9E9E9E"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              id="Vector"
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M-3.29169 12.0614C-3.29169 -0.108792 0.766208 -4.16669 12.9364 -4.16669C25.1066 -4.16669 29.1645 -0.108792 29.1645 12.0614C29.1645 24.2316 25.1066 28.2895 12.9364 28.2895C0.766208 28.2895 -3.29169 24.2316 -3.29169 12.0614Z"
-              stroke="#9E9E9E"
-              stroke-width="71"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </g>
-        </svg>
-      </div>
+      <div className="text-4xl font-extralight">+</div>
       <div>
         <svg
           width="25"
