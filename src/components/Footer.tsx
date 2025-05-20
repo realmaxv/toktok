@@ -1,14 +1,15 @@
+
 import iconuser from '../assets/Iconly/Curved/Frame.svg';
+
 
 function Footer() {
   return (
     <footer className="w-full h-20 fixed bottom-0 flex items-center justify-between p-6">
-      <div className="">
+      <div className="fill-yellow-500">
         <svg
           width="21"
           height="22"
           viewBox="0 0 21 22"
-          fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
@@ -46,9 +47,11 @@ function Footer() {
           />
         </svg>
       </div>
+
       <div>
         <img className="w-6 h-6" src={iconuser} alt="" />
       </div>
+
       <div>
         <svg
           width="25"
