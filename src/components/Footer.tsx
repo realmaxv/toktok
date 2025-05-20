@@ -1,11 +1,30 @@
-
-import iconuser from '../assets/Iconly/Curved/Frame.svg';
-
+import { useNavigate } from "react-router-dom"; 
+import iconuser from "../assets/Iconly/Curved/Frame.svg";
 
 function Footer() {
+  console.log("Footer loaded"); 
+  const navigate = useNavigate(); 
+
+  const handleHomeClick = () => {
+    console.log("click home, navigate to /"); 
+    navigate("/");
+  };
+  const handleSearchClick = () => {
+    console.log("click search, navigate to /search"); 
+    navigate("/search");
+  };
+  const handleProfileClick = () => {
+    console.log("click profile, navigate to /profile"); 
+    navigate("/profile");
+  };
+  const handleUploadClick = () => {
+    console.log("click upload, navigate to /newpost"); 
+    navigate("/newpost");
+  };
+
   return (
     <footer className="w-full h-20 fixed bottom-0 flex items-center justify-between p-6">
-      <div className="fill-yellow-500">
+      <div onClick={handleHomeClick} className="fill-yellow-500">
         <svg
           width="21"
           height="22"
@@ -21,7 +40,7 @@ function Footer() {
           />
         </svg>
       </div>
-      <div>
+      <div onClick={handleSearchClick}>
         <svg
           width="21"
           height="21"
@@ -47,12 +66,10 @@ function Footer() {
           />
         </svg>
       </div>
-
-      <div>
+      <div onClick={handleProfileClick}>
         <img className="w-6 h-6" src={iconuser} alt="" />
       </div>
-
-      <div>
+      <div onClick={handleUploadClick}>
         <svg
           width="25"
           height="24"
