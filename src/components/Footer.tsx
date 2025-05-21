@@ -1,14 +1,12 @@
-
-import { House } from 'lucide-react';
-import { Search } from 'lucide-react';
-import { CirclePlus } from 'lucide-react';
-import { User } from 'lucide-react';
-import { NavLink } from 'react-router';
-
+import { House } from "lucide-react";
+import { Search } from "lucide-react";
+import { CirclePlus } from "lucide-react";
+import { User } from "lucide-react";
+import { NavLink } from "react-router";
 
 function Footer() {
   return (
-    <footer className="w-full h-20 fixed bottom-0 flex items-center justify-between p-6">
+    <footer className="w-full h-20 fixed bottom-0 flex items-center justify-between p-6 bg-accent rounded shadow shadow-accent">
       <NavLink
         to="/"
         className={({ isActive }) =>
