@@ -7,6 +7,7 @@ import Profile from "./pages/Profile";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Search from "./pages/Search";
+import Comments from "./pages/Comments";
 
 const router = createBrowserRouter([
   {
@@ -17,7 +18,7 @@ const router = createBrowserRouter([
       { path: "/signin", Component: SignIn },
       { path: "/newpost", Component: CreateNewPost },
       { path: "/profile", Component: Profile },
-      { path: "/comments", Component: HomeFeed },
+      { path: "/comments", Component: Comments },
       { path: "/search", Component: Search },
       { path: "*", Component: HomeFeed },
     ],

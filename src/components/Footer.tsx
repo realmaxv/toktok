@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { House, Search, CirclePlus, User } from 'lucide-react';
 import { NavLink } from 'react-router';
@@ -44,7 +45,9 @@ const Footer: React.FC<FooterProps> = () => {
     footerRef.current?.releasePointerCapture(e.pointerId);
   };
 
+
   return (
+
     <>
       {/* Der aufziehbare Bereich */}
       <section
@@ -53,6 +56,7 @@ const Footer: React.FC<FooterProps> = () => {
           height: translateY, // Sichtbare Höhe
           transition: dragging ? 'none' : 'height 0.2s',
         }}
+
       >
         <div className="h-full bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-6 p-6">
