@@ -72,7 +72,7 @@ export default function SignUpForm({
               <div className="grid gap-2">
                 <Label htmlFor="email" />
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 bg-transparent">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                     <Mail className="w-4 h-4 text-muted-foreground" />
                   </span>
                   <Input
