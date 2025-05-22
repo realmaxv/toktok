@@ -1,8 +1,9 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import FeedList from "@/components/FeedList";
+import { ProtectedRoute } from "@/layouts/ProtectedRoute";
 
-function HomeFeed() {
+export function HomeFeed() {
   return (
     <main className="overflow-x-hidden">
       <Header />
@@ -12,4 +13,10 @@ function HomeFeed() {
   );
 }
 
-export default HomeFeed;
+export default function ProtectedHomeFeed() {
+  return (
+    <ProtectedRoute>
+      <HomeFeed />
+    </ProtectedRoute>
+  );
+}
