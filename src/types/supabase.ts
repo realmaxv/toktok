@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           content: string
@@ -84,39 +117,36 @@ export type Database = {
           },
         ]
       }
-      likes: {
+      post_likes: {
         Row: {
-          created_at: string
-          id: string
+          created_at: string | null
           post_id: string
           user_id: string
         }
         Insert: {
-          created_at?: string
-          id?: string
+          created_at?: string | null
           post_id: string
           user_id: string
         }
         Update: {
-          created_at?: string
-          id?: string
+          created_at?: string | null
           post_id?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "likes_post_id_fkey"
+            foreignKeyName: "post_likes_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "likes_user_id_fkey"
+            foreignKeyName: "post_likes_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
+            referencedRelation: "public_profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -160,33 +190,33 @@ export type Database = {
           avatar_url: string | null
           birth_date: string | null
           created_at: string
-          first_name: string
+          first_name: string | null
           gender: string | null
           id: string
           job_title: string | null
-          last_name: string
+          last_name: string | null
           website_url: string | null
         }
         Insert: {
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
-          first_name: string
+          first_name?: string | null
           gender?: string | null
           id: string
           job_title?: string | null
-          last_name: string
+          last_name?: string | null
           website_url?: string | null
         }
         Update: {
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
-          first_name?: string
+          first_name?: string | null
           gender?: string | null
           id?: string
           job_title?: string | null
-          last_name?: string
+          last_name?: string | null
           website_url?: string | null
         }
         Relationships: []
