@@ -15,7 +15,7 @@ const Footer: React.FC<FooterProps> = () => {
   const [translateY, setTranslateY] = useState(0);
   const [maxTranslate, setMaxTranslate] = useState(0);
 
-  // 1) halbe Fensterhöhe als Max
+  // 1) Halbe Fensterhöhe als Max
   useEffect(() => {
     const updateMax = () => setMaxTranslate(window.innerHeight / 2);
     updateMax();
@@ -23,20 +23,14 @@ const Footer: React.FC<FooterProps> = () => {
     return () => window.removeEventListener('resize', updateMax);
   }, []);
 
-  // 2) einmaliges „Hop“-Hint beim ersten Laden
+  // 2) Einmaliges Hop-Hint
   useEffect(() => {
-    // erst auslösen, wenn maxTranslate berechnet ist
     if (maxTranslate <= 0) return;
-    // prüfen, ob wir's schon gezeigt haben
     if (!localStorage.getItem(HINT_KEY)) {
       localStorage.setItem(HINT_KEY, 'true');
-      // nach kurzer Verzögerung hochziehen…
       setTimeout(() => {
-        setTranslateY(Math.round(maxTranslate * 1));
-        // …und gleich wieder zurück
-        setTimeout(() => {
-          setTranslateY(0);
-        }, 2000);
+        setTranslateY(Math.round(maxTranslate));
+        setTimeout(() => setTranslateY(0), 2000);
       }, 300);
     }
   }, [maxTranslate]);
@@ -57,24 +51,25 @@ const Footer: React.FC<FooterProps> = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const onPointerDown: React.PointerEventHandler = (e) => {
+  // --- Nur Touch-Pointer für Dragging ---
+  const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    if (e.pointerType !== 'touch') return;
     setDragging(true);
     setStartY(e.clientY);
     footerRef.current?.setPointerCapture(e.pointerId);
   };
 
-  const onPointerMove: React.PointerEventHandler = (e) => {
-    if (!dragging) return;
+  const onPointerMove: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    if (!dragging || e.pointerType !== 'touch') return;
     const delta = startY - e.clientY;
     const clamped = Math.max(0, Math.min(delta, maxTranslate));
     setTranslateY(Math.round(clamped));
   };
 
-  const onPointerUp: React.PointerEventHandler = (e) => {
+  const onPointerUp: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    if (e.pointerType !== 'touch') return;
     setDragging(false);
     footerRef.current?.releasePointerCapture(e.pointerId);
-
-    // Auto-Snap: halb oder ganz zu
     const threshold = maxTranslate / 2;
     setTranslateY((prev) => (prev > threshold ? maxTranslate : 0));
   };
@@ -86,13 +81,13 @@ const Footer: React.FC<FooterProps> = () => {
         ref={sectionRef}
         className="fixed w-full overflow-hidden z-40"
         style={{
-          bottom: '0px',
-          height: translateY + 1, // +1 für sauberes Überlappen
+          bottom: 0,
+          height: translateY + 2,
           transition: dragging ? 'none' : 'height 0.2s',
           willChange: 'height',
         }}
       >
-        <div className="h-full bg-white dark:bg-gray-900">
+        <div className="h-screen bg-white dark:bg-stone-950/95 backdrop-blur-lg border-t border-gray-200">
           <NavLink to="/settings" className="flex items-center gap-6 p-6">
             <Settings className="w-6 h-6 text-gray-500" />
             <h2 className="text-lg">Settings</h2>
@@ -103,7 +98,10 @@ const Footer: React.FC<FooterProps> = () => {
       {/* Footer-Navigation */}
       <div
         ref={footerRef}
-        className="fixed bottom-0 w-full h-20 flex items-center justify-between p-6 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 rounded-t-lg shadow-g z-50 touch-none"
+        className="fixed bottom-0 w-full h-20 flex items-center 
+          justify-between md:justify-start md:pl-6 md:space-x-10 
+          p-6 bg-white dark:bg-stone-950/95 backdrop-blur-lg 
+          border-t border-gray-200 dark:border-stone-900 rounded-t-lg shadow-lg z-50 touch-none"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
