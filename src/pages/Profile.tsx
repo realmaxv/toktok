@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import ProfileHeader from '@/components/ProfileHeader';
 import Spinner from '@/components/Spinner';
 import { Link } from 'react-router';
+import Logout from '@/components/Logout';
 
 function Profile() {
   // 1) Loading-State
@@ -85,6 +86,9 @@ function Profile() {
                   (Test Button) Profile Details
                 </button>
               </Link>
+            </div>
+            <div>
+              <Logout />
             </div>
           </>
         )}
