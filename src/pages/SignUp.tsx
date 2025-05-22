@@ -44,7 +44,9 @@ export default function SignUpForm({
       {...props}
     >
       {success ? (
-        <Card className="w-full max-w-md border-none">
+
+        <Card >
+
           <CardHeader>
             <CardTitle className="text-2xl">
               Account created! Welcome to TokTok.
