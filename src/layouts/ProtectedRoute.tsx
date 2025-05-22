@@ -1,14 +1,20 @@
+import React from "react";
+import Loader from "@/components/Loader";
 import { useAuthContext } from "@/contexts/auth-context";
-import { Navigate, Outlet, useLocation } from "react-router";
+import { Navigate, useLocation } from "react-router";
 
-export default function ProtectedRoute() {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { session, isLoading } = useAuthContext();
   const { pathname } = useLocation();
-  // * Falls wir geprueft haben ob es einen eingeloggten user gibt (isLoading), er aber nicht existiert,
-  // * leiten wir weiter zur Loginseite
-  if (!isLoading && !session) {
-    return <Navigate to="/login?" state={{ redirectTo: pathname }} />;
+  if (isLoading) {
+    return <Loader />;
   }
-
-  return <Outlet />;
+  if (!session) {
+    return <Navigate to="/signin" state={{ redirectTo: pathname }} />;
+  }
+  return <>{children}</>;
 }

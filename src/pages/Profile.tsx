@@ -1,15 +1,17 @@
 // src/pages/Profile.tsx
-import { useState, useEffect } from 'react';
-import { mockUsers, mockPosts } from '../mockData';
-import Footer from '@/components/Footer';
-import ProfileHeader from '@/components/ProfileHeader';
-import Spinner from '@/components/Spinner';
-import { Link } from 'react-router';
-import Logout from '@/components/Logout';
+import { useState, useEffect } from "react";
+import { mockUsers, mockPosts } from "../mockData";
+import Footer from "@/components/Footer";
+import ProfileHeader from "@/components/ProfileHeader";
+import Spinner from "@/components/Spinner";
+import { Link } from "react-router";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase/client";
 
 function Profile() {
   // 1) Loading-State
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // 2) Simulate data fetching
   useEffect(() => {
@@ -17,8 +19,8 @@ function Profile() {
     return () => clearTimeout(timer);
   }, []);
 
-  console.log('Profile loaded');
-  const currentUser = mockUsers.find((u) => u.username === 'john_doe');
+  console.log("Profile loaded");
+  const currentUser = mockUsers.find((u) => u.username === "john_doe");
   const userPosts = mockPosts.filter(
     (p) => p.userId === (currentUser?.id || 1)
   );
@@ -57,7 +59,7 @@ function Profile() {
                   <strong>Bio:</strong> {currentUser.bio}
                 </p>
                 <p>
-                  <strong>Website:</strong>{' '}
+                  <strong>Website:</strong>{" "}
                   <a
                     href={currentUser.website}
                     className="text-blue-500 underline"
@@ -88,7 +90,15 @@ function Profile() {
               </Link>
             </div>
             <div>
-              <Logout />
+              <button
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  navigate("/signin");
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+              >
+                Logout
+              </button>
             </div>
           </>
         )}

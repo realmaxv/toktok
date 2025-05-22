@@ -126,7 +126,7 @@ function FeedCard({
         </p>
         <div className="flex items-center justify-start w-full gap-4 ">
           <button onClick={handleLike} className="flex items-center gap-2">
-            <Heart className={!liked ? "w-7 h-7" : "w-7 h-7 fill-red-600"} />
+            <Heart className={!liked ? "w-7 h-7" : "w-7 h-7 fill-[#ff4d67]"} />
             <p className="font-semibold">{likeCount}</p>
           </button>
           <Link to={"/comments"} className="flex items-center gap-2">
