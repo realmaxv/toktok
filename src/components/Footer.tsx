@@ -82,12 +82,15 @@ const Footer: React.FC<FooterProps> = () => {
         className="fixed w-full overflow-hidden z-40"
         style={{
           bottom: 0,
-          height: translateY + 2,
+          height: translateY + 3,
           transition: dragging ? 'none' : 'height 0.2s',
           willChange: 'height',
         }}
       >
-        <div className="h-screen bg-white dark:bg-stone-950/95 backdrop-blur-lg border-t border-gray-200">
+        <div
+          className="h-screen  bg-white/80 dark:bg-stone-900/90 backdrop-blur-lg 
+          border-trounded-t-lg"
+        >
           <NavLink to="/settings" className="flex items-center gap-6 p-6">
             <Settings className="w-6 h-6 text-gray-500" />
             <h2 className="text-lg">Settings</h2>
@@ -100,8 +103,8 @@ const Footer: React.FC<FooterProps> = () => {
         ref={footerRef}
         className="fixed bottom-0 w-full h-20 flex items-center 
           justify-between md:justify-start md:pl-6 md:space-x-10 
-          p-6 bg-white dark:bg-stone-950/95 backdrop-blur-lg 
-          border-t border-gray-200 dark:border-stone-900 rounded-t-lg shadow-lg z-50 touch-none"
+          p-6 bg-white/80 dark:bg-stone-950/90 backdrop-blur-lg 
+          border-trounded-t-lg shadow-lg z-50 touch-none"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
