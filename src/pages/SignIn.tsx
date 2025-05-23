@@ -12,9 +12,9 @@ import { Mail, LockKeyhole } from "lucide-react";
 export default function SignIn({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+}: React.ComponentPropsWithoutRef<'div'>) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function SignIn({
 
   useEffect(() => {
     if (session) {
-      navigate("/");
+      navigate('/');
     }
   }, [session, navigate]);
 
@@ -43,20 +43,20 @@ export default function SignIn({
       if (!data.user?.email_confirmed_at) {
         await supabase.auth.signOut();
         setError(
-          "Your email is not verified. Please check your inbox and verify your account."
+          'Your email is not verified. Please check your inbox and verify your account.'
         );
         return;
       }
 
-      console.log("Login success, user:", data.user);
-      navigate("/home");
+      console.log('Login success, user:', data.user);
+      navigate('/home');
     } catch (error: unknown) {
       setError(
         error instanceof Error
           ? error.message
-          : "An error occurred during login"
+          : 'An error occurred during login'
       );
-      console.log("Login failed:", error);
+      console.log('Login failed:', error);
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +65,7 @@ export default function SignIn({
   return (
     <div
       className={cn(
-        "min-h-screen flex items-center justify-center p-4 bg-stone-200 dark:bg-stone-950",
+        'min-h-screen flex items-center justify-center p-4 bg-stone-200 dark:bg-stone-950',
         className
       )}
       {...props}
@@ -75,7 +75,7 @@ export default function SignIn({
           <CardTitle className="text-3xl p-4">Sign In to TokTok</CardTitle>
         </CardHeader>
         <div className="flex items-center justify-center p-4">
-          <img src={logo} alt="TokTok Logo" className="w-[25px] h-[25px]" />
+          <img src={logo} alt="TokTok Logo" className="w-25 h-25" />
         </div>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -128,11 +128,11 @@ export default function SignIn({
               className="text-lg mt-2 h-13 w-full bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)]"
               disabled={isLoading}
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
 
             <div className="mt-4 text-center text-sm text-gray-500">
-              Don't have an account?{" "}
+              Don't have an account?{' '}
               <Link
                 to="/signup"
                 className="underline underline-offset-4 text-[var(--color-button-pink)]"

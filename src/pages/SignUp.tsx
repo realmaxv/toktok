@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.svg";
 import { Mail, LockKeyhole } from "lucide-react";
 
+
 export default function SignUpForm({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+}: React.ComponentPropsWithoutRef<'div'>) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -24,7 +25,7 @@ export default function SignUpForm({
     setError(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError('Passwords do not match');
       return;
     }
 
@@ -38,9 +39,11 @@ export default function SignUpForm({
         },
       });
       if (error) throw error;
+
       setSuccess(true);
+
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -49,11 +52,12 @@ export default function SignUpForm({
   return (
     <div
       className={cn(
-        "min-h-screen flex items-center justify-center p-4 bg-stone-200 dark:bg-stone-950",
+        'min-h-screen flex items-center justify-center p-4 bg-stone-200 dark:bg-stone-950',
         className
       )}
       {...props}
     >
+
       {success ? (
         <Card>
           <CardHeader>
@@ -94,6 +98,7 @@ export default function SignUpForm({
                     disabled={isLoading}
                   />
                 </div>
+
               </div>
 
               <div className="grid gap-2">
@@ -136,10 +141,25 @@ export default function SignUpForm({
 
               {error && <p className="text-sm text-red-500">{error}</p>}
 
+
+            <Button
+              type="submit"
+              className="text-lg mt-2 h-13 w-full bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)]"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creating an account...' : 'Sign up'}
+            </Button>
+
+            <div className="mt-4 text-center text-sm text-gray-500">
+              Already have an account?{' '}
+              <a
+                href="/signin"
+                className="underline underline-offset-4 text-[var(--color-button-pink)]"
               <Button
                 type="submit"
                 className="text-lg mt-2 h-13 w-full bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)]"
                 disabled={isLoading}
+
               >
                 {isLoading ? "Creating an account..." : "Sign up"}
               </Button>

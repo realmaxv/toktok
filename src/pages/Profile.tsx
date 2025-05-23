@@ -1,113 +1,155 @@
-// src/pages/Profile.tsx
-import { useState, useEffect } from "react";
-import { mockUsers, mockPosts } from "../mockData";
-import Footer from "@/components/Footer";
-import ProfileHeader from "@/components/ProfileHeader";
-import Spinner from "@/components/Spinner";
-import { Link } from "react-router";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase/client";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase/client';
+import { Link, useNavigate } from 'react-router-dom';
+import Footer from '@/components/Footer';
+import ProfileHeader from '@/components/ProfileHeader';
+import { SquarePen } from 'lucide-react';
 
-function Profile() {
-  // 1) Loading-State
+interface ProfileData {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  job_title: string | null;
+  avatar_url: string | null;
+  website_url: string | null;
+  nick_name: string | null;
+  created_at: string | null;
+}
+
+interface PostPreview {
+  id: string;
+  content_url: string;
+}
+
+export default function Profile() {
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [posts, setPosts] = useState<PostPreview[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 2) Simulate data fetching
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
-  }, []);
+    async function fetchData() {
+      const user = await supabase.auth.getUser();
+      const userId = user.data.user?.id;
+      if (!userId) {
+        navigate('/login');
+        return;
+      }
 
-  console.log("Profile loaded");
-  const currentUser = mockUsers.find((u) => u.username === "john_doe");
-  const userPosts = mockPosts.filter(
-    (p) => p.userId === (currentUser?.id || 1)
-  );
+      // Fetch profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      // Fetch last 3 posts
+      const { data: postData } = await supabase
+        .from('posts')
+        .select('id, content_url')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      setProfile(profileData ?? null);
+      setPosts(postData || []);
+      setLoading(false);
+    }
+    fetchData();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500" />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return <p className="text-center mt-20">Profile nicht gefunden.</p>;
+  }
+
+  const fullName = `${profile.first_name ?? ''} ${
+    profile.last_name ?? ''
+  }`.trim();
 
   return (
-    <>
-      {/* Header always visible */}
+    <div className="flex flex-col min-h-screen pt-20 pb-20">
+      {/* Header */}
       <ProfileHeader />
 
-      {/* Content section */}
-      <div className="relative flex flex-col items-center justify-center min-h-screen p-4">
-        {/* Spinner overlay during loading */}
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-transparent z-10 pointer-events-none">
-            <Spinner size={40} color="#FF7185" speed={1.2} />
-          </div>
-        )}
-
-        {/* Actual content only once loaded; keeps container size due to min-h-screen */}
-        {!loading && (
-          <>
-            <h1 className="text-2xl font-semibold mb-4">User Profile</h1>
-
-            {currentUser && (
-              <div className="mb-6 text-center">
-                <p>
-                  <strong>Username:</strong> {currentUser.username}
-                </p>
-                <p>
-                  <strong>Name:</strong> {currentUser.name}
-                </p>
-                <p>
-                  <strong>Role:</strong> {currentUser.role}
-                </p>
-                <p>
-                  <strong>Bio:</strong> {currentUser.bio}
-                </p>
-                <p>
-                  <strong>Website:</strong>{" "}
-                  <a
-                    href={currentUser.website}
-                    className="text-blue-500 underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {currentUser.website}
-                  </a>
-                </p>
-              </div>
-            )}
-
-            <h2 className="text-xl font-medium mb-2">My Posts</h2>
-            <ul className="list-disc list-inside mb-6">
-              {userPosts.map((post) => (
-                <li key={post.id} className="mb-1">
-                  {post.content} (Likes: {post.likes}, Comments: {post.comments}
-                  )
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-8">
-              <Link to="/profile-detail">
-                <button className="ml-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                  (Test Button) Profile Details
-                </button>
-              </Link>
-            </div>
-            <div>
-              <button
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  navigate("/signin");
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
-              >
-                Logout
-              </button>
-            </div>
-          </>
+      {/* Profile Info */}
+      <div className="flex flex-col items-center text-center px-6 py-8 bg-gray-50">
+        <div className="relative">
+          <img
+            src={profile.avatar_url || '/default-avatar.png'}
+            alt="Avatar"
+            className="w-32 h-32 rounded-full object-cover"
+          />
+          {/* Edit icon placeholder */}
+          <Link
+            to="/profile-edit"
+            className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow"
+          >
+            <SquarePen className="w-5 h-5 text-[var(--color-brand-pink)]" />
+          </Link>
+        </div>
+        <h2 className="mt-4 text-2xl font-bold">
+          {fullName || profile.nick_name}
+        </h2>
+        <p className="text-sm text-gray-600">{profile.job_title}</p>
+        <p className="mt-3 text-gray-700 max-w-md">
+          {/* Bio stub */}
+          Hier steht deine Bio. Bearbeite dein Profil, um sie zu ändern.
+        </p>
+        {profile.website_url && (
+          <a
+            href={profile.website_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 text-pink-500underline"
+          >
+            {profile.website_url}
+          </a>
         )}
       </div>
 
-      {/* Footer always visible */}
+      {/* Stats */}
+      <div className="grid grid-cols-3 text-center bg-white py-4">
+        <div>
+          <div className="text-lg font-bold">{posts.length}</div>
+          <div className="text-xs text-gray-500">Posts</div>
+        </div>
+        <div>
+          <div className="text-lg font-bold">--</div>
+          <div className="text-xs text-gray-500">Followers</div>
+        </div>
+        <div>
+          <div className="text-lg font-bold">--</div>
+          <div className="text-xs text-gray-500">Following</div>
+        </div>
+      </div>
+
+      {/* Feeds Preview */}
+      <div className="px-6 py-8 flex-1 bg-gray-50">
+        <h3 className="flex items-center text-lg font-medium mb-4 text-[var(--color-brand-pink)]">
+          Feeds
+        </h3>
+        <div className="grid grid-cols-3 gap-2">
+          {posts.map((p) => (
+            <img
+              key={p.id}
+              src={p.content_url}
+              alt="Post preview"
+              className="w-full h-24 object-cover rounded-md"
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Footer */}
       <Footer />
-    </>
+    </div>
   );
 }
-
-export default Profile;

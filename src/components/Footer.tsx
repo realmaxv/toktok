@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { House, Search, CirclePlus, User, Settings } from 'lucide-react';
 import { NavLink } from 'react-router';
+import Logout from './Logout';
 
 type FooterProps = object;
 
@@ -94,6 +95,7 @@ const Footer: React.FC<FooterProps> = () => {
           <NavLink to="/settings" className="flex items-center gap-6 p-6">
             <Settings className="w-6 h-6 text-gray-500" />
             <h2 className="text-lg">Settings</h2>
+            <Logout />
           </NavLink>
         </div>
       </section>
