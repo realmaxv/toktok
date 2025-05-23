@@ -33,13 +33,6 @@ export type Database = {
             referencedRelation: "comments"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "comment_likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       comments: {
@@ -126,7 +119,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           post_id: string
-          user_id: string
+          user_id?: string
         }
         Update: {
           created_at?: string | null
@@ -140,13 +133,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "posts"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "post_likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -189,69 +175,43 @@ export type Database = {
         Row: {
           avatar_url: string | null
           birth_date: string | null
-          created_at: string
+          created_at: string | null
           first_name: string | null
           gender: string | null
           id: string
           job_title: string | null
           last_name: string | null
+          last_signin_at: string | null
+          nick_name: string | null
           website_url: string | null
         }
         Insert: {
           avatar_url?: string | null
           birth_date?: string | null
-          created_at?: string
+          created_at?: string | null
           first_name?: string | null
           gender?: string | null
           id: string
           job_title?: string | null
           last_name?: string | null
+          last_signin_at?: string | null
+          nick_name?: string | null
           website_url?: string | null
         }
         Update: {
           avatar_url?: string | null
           birth_date?: string | null
-          created_at?: string
+          created_at?: string | null
           first_name?: string | null
           gender?: string | null
           id?: string
           job_title?: string | null
           last_name?: string | null
+          last_signin_at?: string | null
+          nick_name?: string | null
           website_url?: string | null
         }
         Relationships: []
-      }
-      public_profiles: {
-        Row: {
-          avatar_url: string | null
-          handle: string
-          job_title: string | null
-          user_id: string
-          website_url: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          handle: string
-          job_title?: string | null
-          user_id: string
-          website_url?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          handle?: string
-          job_title?: string | null
-          user_id?: string
-          website_url?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_profiles_user"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {

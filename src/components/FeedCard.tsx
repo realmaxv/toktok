@@ -37,7 +37,11 @@ function FeedCard({
     setLiked(likedByUser);
   }, [likedByUser]);
 
+  const isLoggedIn = Boolean(userId);
+
   const handleLike = async () => {
+    if (!isLoggedIn) return;
+
     const { data: existingLike, error } = await supabase
       .from("post_likes")
       .select("*")
@@ -112,7 +116,14 @@ function FeedCard({
           {caption || ""}
         </p>
         <div className="flex items-center justify-start w-full gap-4 ">
-          <button onClick={handleLike} className="flex items-center gap-2">
+          <button
+            onClick={handleLike}
+            disabled={!isLoggedIn}
+            title={!isLoggedIn ? "Bitte einloggen zum Liken" : undefined}
+            className={`flex items-center gap-2 ${
+              !isLoggedIn ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
             <Heart className={!liked ? "w-7 h-7" : "w-7 h-7 fill-[#ff4d67]"} />
             <p className="font-semibold">{likeCount}</p>
           </button>
