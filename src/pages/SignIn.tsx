@@ -5,7 +5,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuthContext } from "@/contexts/auth-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.svg";
 import { Mail, LockKeyhole } from "lucide-react";
@@ -81,7 +80,6 @@ export default function SignIn({
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <Mail className="w-4 h-4 text-muted-foreground" />
@@ -100,7 +98,6 @@ export default function SignIn({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <LockKeyhole className="w-4 h-4 text-muted-foreground" />
@@ -116,6 +113,12 @@ export default function SignIn({
                   disabled={isLoading}
                 />
               </div>
+              <Link
+                to="/forgot-password"
+                className="ml-auto text-xs underline-offset-4 hover:underline"
+              >
+                Forgot your password?
+              </Link>
             </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}

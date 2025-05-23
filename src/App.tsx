@@ -6,6 +6,7 @@ import Profile from "./pages/Profile";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Search from "./pages/Search";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import Comments from "./pages/Comments";
 import ProfileDetail from "./pages/ProfileDetails";
 import ProfileEdit from "./pages/ProfileEdit";
@@ -34,6 +35,7 @@ function InnerApp() {
       children: [
         { path: "/signup", Component: SignUp },
         { path: "/signin", Component: SignIn },
+        { path: "/forgot-password", Component: ForgotPasswordPage },
         { path: "*", Component: SignIn },
       ],
     },
