@@ -2,7 +2,7 @@ import placeholder from "@/assets/avatar_placeholder.png";
 import { supabase } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Heart, MessageCircleMore } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router";
 
 type FeedCardProps = {
@@ -31,22 +31,13 @@ function FeedCard({
   likedByUser,
 }: FeedCardProps) {
   const queryClient = useQueryClient();
-  const hasLoadedFromStorage = useRef(false);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState<boolean>(likedByUser);
   const [likeCount, setLikeCount] = useState(() => Number(likesCount));
-
   useEffect(() => {
-    if (!hasLoadedFromStorage.current) {
-      const stored = localStorage.getItem(`liked_${id}`);
-      setLiked(stored === "true" || likedByUser);
-      hasLoadedFromStorage.current = true;
-    }
-  }, [id, likedByUser]);
+    setLiked(likedByUser);
+  }, [likedByUser]);
 
   const handleLike = async () => {
-    console.log("post_id:", id);
-    console.log("user_id:", userId);
-
     const { data: existingLike, error } = await supabase
       .from("post_likes")
       .select("*")
@@ -73,8 +64,6 @@ function FeedCard({
 
       setLiked(false);
       setLikeCount((prev) => prev - 1);
-      console.log("Removing localStorage liked:", id);
-      localStorage.removeItem(`liked_${id}`);
     } else {
       // Like
       const { error: insertError } = await supabase.from("post_likes").insert({
@@ -89,8 +78,6 @@ function FeedCard({
 
       setLiked(true);
       setLikeCount((prev) => prev + 1);
-      console.log("Setting localStorage liked:", id);
-      localStorage.setItem(`liked_${id}`, "true");
     }
 
     queryClient.invalidateQueries({ queryKey: ["posts"] });
@@ -139,4 +126,4 @@ function FeedCard({
   );
 }
 
-export default FeedCard;
+export default React.memo(FeedCard);

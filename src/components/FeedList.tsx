@@ -1,11 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import FeedCard from "./FeedCard";
 import { supabase } from "@/lib/supabase/client";
-import { useSession } from "@supabase/auth-helpers-react";
+import { useState, useEffect } from "react";
 
 function FeedList() {
-  const session = useSession();
-  const currentUserId = session?.user.id;
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user }, error }) => {
+      if (error) {
+        console.error("Error fetching user:", error);
+      } else if (user) {
+        setCurrentUserId(user.id);
+      }
+    });
+  }, []);
 
   const { data, isError } = useQuery({
     queryFn: async () => {
@@ -20,8 +28,6 @@ function FeedList() {
     queryKey: ["posts"],
   });
 
-  console.log(data);
-
   return (
     <div
       style={{
@@ -32,7 +38,7 @@ function FeedList() {
     >
       {data?.map((single) => (
         <FeedCard
-          userId={single.user_id}
+          userId={currentUserId}
           caption={single.caption ?? ""}
           key={single.id}
           id={single.id}
@@ -41,21 +47,16 @@ function FeedList() {
           }
           avatarPath={single.profiles.avatar_url ?? ""}
           commentsCount={single.comments?.length.toString() ?? "0"}
-          likesCount={single.post_likes?.length.toString() ?? "0"}
+          likesCount={
+            Array.isArray(single.post_likes)
+              ? single.post_likes.length.toString()
+              : "0"
+          }
           imagePath={single.content_url}
           jobTitle={single.profiles.job_title ?? ""}
           likedByUser={
-            (() => {
-              const isLiked =
-                Array.isArray(single.post_likes) &&
-                single.post_likes.some((like) => like.user_id === currentUserId);
-              if (isLiked) {
-                localStorage.setItem(`liked_${single.id}`, "true");
-              } else {
-                localStorage.removeItem(`liked_${single.id}`);
-              }
-              return isLiked;
-            })()
+            Array.isArray(single.post_likes) &&
+            single.post_likes.some((like) => like.user_id === currentUserId)
           }
         />
       ))}
