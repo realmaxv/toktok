@@ -2,7 +2,7 @@ import placeholder from "@/assets/avatar_placeholder.png";
 import { supabase } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Heart, MessageCircleMore } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 type FeedCardProps = {
@@ -31,35 +31,66 @@ function FeedCard({
   likedByUser,
 }: FeedCardProps) {
   const queryClient = useQueryClient();
-  const hasLoadedFromStorage = useRef(false);
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(() => Number(likesCount));
-
+  const [liked, setLiked] = useState(likedByUser);
   useEffect(() => {
-    if (!hasLoadedFromStorage.current) {
-      const stored = localStorage.getItem(`liked_${id}`);
-      setLiked(stored === "true" || likedByUser);
-      hasLoadedFromStorage.current = true;
-    }
-  }, [id, likedByUser]);
+    setLiked(likedByUser);
+  }, [likedByUser]);
+  const [likeCount, setLikeCount] = useState(() => {
+    const count = Number(likesCount);
+    return isNaN(count) ? 0 : count;
+  });
+
+  const [isProcessingLike, setIsProcessingLike] = useState(false);
 
   const handleLike = async () => {
+    if (isProcessingLike) return;
+    setIsProcessingLike(true);
+
     console.log("post_id:", id);
+    if (!userId) {
+      console.error("Kein userId übergeben – Like nicht möglich");
+      setIsProcessingLike(false);
+      return;
+    }
     console.log("user_id:", userId);
 
-    const { data: existingLike, error } = await supabase
+    const { data: likeMatches, error } = await supabase
       .from("post_likes")
       .select("*")
       .eq("post_id", id)
-      .eq("user_id", userId)
-      .maybeSingle();
+      .eq("user_id", userId);
+
+    const existingLike =
+      Array.isArray(likeMatches) &&
+      likeMatches.some(
+        (like) =>
+          typeof like?.user_id === "string" &&
+          like.user_id.trim() === userId.trim()
+      );
+    console.log("Gefundene Likes für diesen User/Post:", likeMatches);
 
     if (error) {
       console.error("Fehler beim Prüfen des Likes:", error);
+      setIsProcessingLike(false);
       return;
     }
 
     if (existingLike) {
+      // Logging before removing like
+      console.log("Like entfernt durch User:", userId);
+
+      setLiked(false);
+      setLikeCount((prev) => {
+        const newCount = Math.max(prev - 1, 0);
+        console.log(
+          "Updated Like State – liked:",
+          false,
+          "likeCount:",
+          newCount
+        );
+        return newCount;
+      });
+
       const { error: deleteError } = await supabase
         .from("post_likes")
         .delete()
@@ -68,32 +99,49 @@ function FeedCard({
 
       if (deleteError) {
         console.error("Fehler beim Entfernen des Likes:", deleteError);
+        setIsProcessingLike(false);
         return;
       }
-
-      setLiked(false);
-      setLikeCount((prev) => prev - 1);
-      console.log("Removing localStorage liked:", id);
-      localStorage.removeItem(`liked_${id}`);
     } else {
-      // Like
-      const { error: insertError } = await supabase.from("post_likes").insert({
-        post_id: id,
-        user_id: userId,
-      });
+      // Logging before adding like
+      console.log("Like erfolgreich gesetzt durch User:", userId);
 
+      const { error: insertError } = await supabase
+        .from("post_likes")
+        .insert({
+          post_id: id,
+          user_id: userId,
+        })
+        .select();
+
+      // Kontrolle: Insert erfolgreich?
+      if (!insertError) {
+        console.log("INSERT erfolgreich für post:", id, "user:", userId);
+      }
+      // Prüfen, ob insertError wirklich null ist
       if (insertError) {
         console.error("Fehler beim Hinzufügen des Likes:", insertError);
+        setIsProcessingLike(false);
         return;
       }
 
       setLiked(true);
-      setLikeCount((prev) => prev + 1);
-      console.log("Setting localStorage liked:", id);
-      localStorage.setItem(`liked_${id}`, "true");
+      setLikeCount((prev) => {
+        const newCount = prev + 1;
+        console.log(
+          "Updated Like State – liked:",
+          true,
+          "likeCount:",
+          newCount
+        );
+        return newCount;
+      });
     }
 
-    queryClient.invalidateQueries({ queryKey: ["posts"] });
+    await queryClient.invalidateQueries({ queryKey: ["posts", userId] });
+    await queryClient.refetchQueries({ queryKey: ["posts", userId] });
+
+    setIsProcessingLike(false);
   };
 
   return (
@@ -130,13 +178,16 @@ function FeedCard({
           <div className="flex items-center space-x-4">
             <button
               onClick={handleLike}
-              className="flex items-center space-x-2"
+              disabled={isProcessingLike}
+              className={`flex items-center space-x-2 ${
+                isProcessingLike ? "opacity-50 pointer-events-none" : ""
+              }`}
             >
               <Heart
-                className={`w-7 h-7 ${
+                className={`w-7 h-7 transition-colors duration-300 ${
                   liked
-                    ? "fill-[var(--color-brand-pink)] text-[var(--color-brand-pink)]"
-                    : ""
+                    ? "fill-pink-500 text-pink-500"
+                    : "fill-none text-gray-400"
                 }`}
               />
               <span className="font-semibold">{likeCount}</span>

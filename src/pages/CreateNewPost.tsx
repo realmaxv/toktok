@@ -1,3 +1,11 @@
+type Post = {
+  id: string;
+  caption: string | null;
+  content_url: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+};
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase/client";
 import { useState } from "react";
@@ -95,15 +103,32 @@ export default function CreateNewPost({
       }
 
       const now = new Date().toISOString();
-      const { error: insertError } = await supabase.from("posts").insert({
-        caption: caption || null,
-        content_url: contentUrl,
-        user_id: session.user.id,
-        created_at: now,
-        updated_at: now,
-      });
+      const { data: insertResult, error: insertError } = await supabase
+        .from("posts")
+        .insert({
+          caption: caption || null,
+          content_url: contentUrl,
+          user_id: session.user.id,
+          created_at: now,
+          updated_at: now,
+        })
+        .select()
+        .returns<Post[]>();
 
       if (insertError) throw insertError;
+
+      // Optional: direkt nach Post-Erstellung einen Like für den aktuellen User setzen
+      const { error: likeError } = await supabase.from("post_likes").insert({
+        post_id: insertResult?.[0]?.id,
+        user_id: session.user.id,
+      });
+      if (likeError) {
+        console.warn(
+          "Post erstellt, aber Like konnte nicht gesetzt werden:",
+          likeError
+        );
+      }
+
       navigate("/home");
     } catch (err: unknown) {
       console.error("Post creation error:", err);

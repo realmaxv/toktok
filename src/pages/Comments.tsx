@@ -194,6 +194,10 @@ export default function Comments({
       setError("You must be logged in to reply.");
       return;
     }
+    if (!id) {
+      setError("Post-ID fehlt.");
+      return;
+    }
     if ((!caption || caption.trim() === "") && !imageFile) {
       setError("Please provide a caption or an image.");
       return;
@@ -209,7 +213,7 @@ export default function Comments({
 
       const { error } = await supabase.from("comments").insert({
         content: caption.trim(),
-        post_id: id!,
+        post_id: id,
         user_id: session.user.id,
         created_at: new Date().toISOString(),
       });
@@ -220,8 +224,44 @@ export default function Comments({
       setCaption("");
       setImageFile(null);
 
-      // Statt window.location.reload() gezielt neu rendern:
-      navigate(`/comments/${id}`);
+      // Reload comments directly after submitting
+      const { data: commentData, error: commentError } = await supabase
+        .from("comments")
+        .select(
+          `
+          id,
+          content,
+          created_at,
+          user_id,
+          profiles (
+            first_name,
+            last_name,
+            nick_name,
+            avatar_url
+          )
+        `
+        )
+        .eq("post_id", id)
+        .order("created_at", { ascending: false });
+
+      if (commentError) throw commentError;
+
+      const processedComments = (commentData || []).map((comment) => {
+        const avatarPath = comment.profiles?.avatar_url;
+        const avatar =
+          avatarPath && !avatarPath.startsWith("http")
+            ? supabase.storage.from("useruploads").getPublicUrl(avatarPath).data
+                .publicUrl
+            : avatarPath;
+        return {
+          ...comment,
+          profiles: {
+            ...comment.profiles,
+            avatar_url: avatar,
+          },
+        };
+      });
+      setComments(processedComments);
     } catch (error: unknown) {
       setError(
         error instanceof Error ? error.message : "Failed to submit comment"
