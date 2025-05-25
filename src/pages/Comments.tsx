@@ -200,7 +200,6 @@ export default function Comments({
     }
     setError(null);
     setIsLoading(true);
-
     try {
       let contentUrl: string | null = null;
       if (imageFile) {
@@ -217,9 +216,12 @@ export default function Comments({
 
       if (error) throw error;
 
+      // Reset inputs
       setCaption("");
       setImageFile(null);
-      navigate("/");
+
+      // Statt window.location.reload() gezielt neu rendern:
+      navigate(`/comments/${id}`);
     } catch (error: unknown) {
       setError(
         error instanceof Error ? error.message : "Failed to submit comment"
