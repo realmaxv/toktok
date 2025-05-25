@@ -178,7 +178,7 @@ export default function Profile() {
             <Link to={`/comments/${p.id}`} key={p.id}>
               <img
                 src={p.content_url}
-                alt="Post preview"
+                alt={`Beitrag ${p.id}`}
                 className="w-full h-24 object-cover rounded-md hover:opacity-80 transition-opacity"
               />
             </Link>

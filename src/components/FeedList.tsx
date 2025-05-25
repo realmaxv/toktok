@@ -128,6 +128,7 @@ function FeedList() {
           return (
             <FeedCard
               userId={currentUserId}
+              authorId={single.user_id}
               caption={single.caption ?? ""}
               key={single.id}
               id={single.id}

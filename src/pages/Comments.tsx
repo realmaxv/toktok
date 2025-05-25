@@ -51,6 +51,23 @@ export default function Comments({
   const navigate = useNavigate();
   const { session } = useAuthContext();
 
+  // Funktion zum Löschen des Posts
+  const handleDeletePost = async () => {
+    if (!post?.id) return;
+    const confirmed = window.confirm(
+      "Möchtest du diesen Beitrag wirklich löschen?"
+    );
+    if (!confirmed) return;
+    try {
+      const { error } = await supabase.from("posts").delete().eq("id", post.id);
+      if (error) throw error;
+      navigate("/");
+    } catch (err) {
+      console.error("Fehler beim Löschen des Beitrags:", err);
+      setError("Beitrag konnte nicht gelöscht werden.");
+    }
+  };
+
   const MAX_CHARS = 500;
 
   useEffect(() => {
@@ -426,6 +443,16 @@ export default function Comments({
                 )}
                 <p className="text-sm">{post.caption || "No caption"}</p>
               </div>
+              {/* Post löschen Button für Ersteller */}
+              {session?.user?.id === post.user_id && (
+                <Button
+                  variant="destructive"
+                  onClick={handleDeletePost}
+                  className="w-fit self-end"
+                >
+                  Beitrag löschen
+                </Button>
+              )}
               {/* Kommentare unter dem Post */}
               <div className="flex flex-col gap-4 mt-4">
                 <h3 className="text-sm font-bold">Kommentare</h3>

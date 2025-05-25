@@ -83,7 +83,8 @@ export default function ProfileDetails() {
       const { data: postData } = await supabase
         .from("posts")
         .select("*")
-        .eq("user_id", id ?? "");
+        .eq("user_id", id ?? "")
+        .order("created_at", { ascending: false });
 
       const processedPosts = await Promise.all(
         (postData ?? []).map(async (p) => {

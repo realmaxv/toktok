@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 type FeedCardProps = {
   id: string;
   userId: string;
+  authorId: string;
   nickName: string;
   jobTitle: string;
   avatarPath: string;
@@ -21,6 +22,7 @@ type FeedCardProps = {
 function FeedCard({
   id,
   userId,
+  authorId,
   nickName,
   jobTitle,
   avatarPath,
@@ -154,19 +156,20 @@ function FeedCard({
   "
     >
       <article className="rounded-2xl overflow-hidden flex flex-col">
-        <Link
-          to={`/profile/${userId}`}
-          className="flex items-center p-4 space-x-4"
-        >
-          <div
-            className="w-12 h-12 rounded-full bg-center bg-cover"
-            style={{ backgroundImage: `url(${avatarPath || placeholder})` }}
-          />
+        <div className="flex items-center p-4 space-x-4">
+          <Link to={`/profile/${authorId}`}>
+            <div
+              className="w-12 h-12 rounded-full bg-center bg-cover"
+              style={{ backgroundImage: `url(${avatarPath || placeholder})` }}
+            />
+          </Link>
           <div className="flex flex-col">
-            <p className="font-medium">{nickName}</p>
+            <Link to={`/profile/${authorId}`}>
+              <p className="font-medium hover:underline">{nickName}</p>
+            </Link>
             <p className="text-sm text-gray-500">{jobTitle}</p>
           </div>
-        </Link>
+        </div>
 
         <div
           className="relative w-full pb-[100%] bg-center bg-cover rounded-3xl"
