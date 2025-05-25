@@ -13,6 +13,7 @@ import ProfileEdit from "./pages/ProfileEdit";
 import Settings from "./pages/Settings";
 import Loader from "./components/Loader";
 import RootLayout from "./layouts/RootLayout";
+import ProfileDetails from "./pages/ProfileDetails";
 
 function App() {
   return (
@@ -48,7 +49,8 @@ function InnerApp() {
         { path: "/", Component: HomeFeed },
         { path: "/newpost", Component: CreateNewPost },
         { path: "/profile", Component: Profile },
-        { path: "/comments", Component: Comments },
+        { path: "/profile/:id", Component: ProfileDetails },
+        { path: "/comments/:id", Component: Comments },
         { path: "/search", Component: Search },
         { path: "/profile-detail", Component: ProfileDetail },
         { path: "/profile-edit", Component: ProfileEdit },

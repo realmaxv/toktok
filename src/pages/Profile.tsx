@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase/client';
-import { Link, useNavigate } from 'react-router-dom';
-import Footer from '@/components/Footer';
-import ProfileHeader from '@/components/ProfileHeader';
-import { SquarePen } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase/client";
+import { Link, useNavigate } from "react-router-dom";
+import Footer from "@/components/Footer";
+import ProfileHeader from "@/components/ProfileHeader";
+import { SquarePen } from "lucide-react";
 
 interface ProfileData {
   id: string;
@@ -32,27 +32,58 @@ export default function Profile() {
       const user = await supabase.auth.getUser();
       const userId = user.data.user?.id;
       if (!userId) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
       // Fetch profile
       const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
         .single();
+
+      // Avatar-URL auflösen
+      let avatarUrl = "/default-avatar.png";
+      if (profileData?.avatar_url) {
+        const raw = profileData.avatar_url.replace(/^\/+/, "");
+        if (raw.startsWith("http")) {
+          avatarUrl = raw;
+        } else {
+          const { data: urlData } = supabase.storage
+            .from("useruploads")
+            .getPublicUrl(raw);
+          avatarUrl = urlData?.publicUrl ?? "/default-avatar.png";
+        }
+      }
+      if (profileData) {
+        profileData.avatar_url = avatarUrl!;
+      }
 
       // Fetch last 3 posts
       const { data: postData } = await supabase
-        .from('posts')
-        .select('id, content_url')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
+        .from("posts")
+        .select("id, content_url")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      // Post-Bilder auflösen
+      const processedPosts = (postData || []).map((p) => {
+        let imageUrl = "/default-post.png";
+        if (p.content_url) {
+          const rawPath = p.content_url.replace(/^\/+/, "");
+          if (rawPath.startsWith("http")) {
+            imageUrl = rawPath;
+          } else {
+            const { data: imgData } = supabase.storage
+              .from("useruploads")
+              .getPublicUrl(rawPath);
+            imageUrl = imgData?.publicUrl ?? "/default-post.png";
+          }
+        }
+        return { ...p, content_url: imageUrl };
+      });
       setProfile(profileData ?? null);
-      setPosts(postData || []);
+      setPosts(processedPosts);
       setLoading(false);
     }
     fetchData();
@@ -70,8 +101,8 @@ export default function Profile() {
     return <p className="text-center mt-20">Profile nicht gefunden.</p>;
   }
 
-  const fullName = `${profile.first_name ?? ''} ${
-    profile.last_name ?? ''
+  const fullName = `${profile.first_name ?? ""} ${
+    profile.last_name ?? ""
   }`.trim();
 
   return (
@@ -80,10 +111,10 @@ export default function Profile() {
       <ProfileHeader />
 
       {/* Profile Info */}
-      <div className="flex flex-col items-center text-center px-6 py-8 bg-gray-50">
+      <div className="flex flex-col items-center text-center px-6 py-8 ">
         <div className="relative">
           <img
-            src={profile.avatar_url || '/default-avatar.png'}
+            src={profile.avatar_url || "/default-avatar.png"}
             alt="Avatar"
             className="w-32 h-32 rounded-full object-cover"
           />
@@ -98,8 +129,10 @@ export default function Profile() {
         <h2 className="mt-4 text-2xl font-bold">
           {fullName || profile.nick_name}
         </h2>
-        <p className="text-sm text-gray-600">{profile.job_title}</p>
-        <p className="mt-3 text-gray-700 max-w-md">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          {profile.job_title}
+        </p>
+        <p className="mt-3 text-gray-700 dark:text-gray-300 max-w-md">
           {/* Bio stub */}
           Hier steht deine Bio. Bearbeite dein Profil, um sie zu ändern.
         </p>
@@ -116,34 +149,39 @@ export default function Profile() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 text-center bg-white py-4">
+      <div className="grid grid-cols-3 text-center py-4">
         <div>
           <div className="text-lg font-bold">{posts.length}</div>
-          <div className="text-xs text-gray-500">Posts</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">Posts</div>
         </div>
         <div>
-          <div className="text-lg font-bold">--</div>
-          <div className="text-xs text-gray-500">Followers</div>
+          <div className="text-lg font-bold">0</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Followers
+          </div>
         </div>
         <div>
-          <div className="text-lg font-bold">--</div>
-          <div className="text-xs text-gray-500">Following</div>
+          <div className="text-lg font-bold">0</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Following
+          </div>
         </div>
       </div>
 
       {/* Feeds Preview */}
-      <div className="px-6 py-8 flex-1 bg-gray-50">
+      <div className="px-6 py-8 flex-1 ">
         <h3 className="flex items-center text-lg font-medium mb-4 text-[var(--color-brand-pink)]">
           Feeds
         </h3>
         <div className="grid grid-cols-3 gap-2">
           {posts.map((p) => (
-            <img
-              key={p.id}
-              src={p.content_url}
-              alt="Post preview"
-              className="w-full h-24 object-cover rounded-md"
-            />
+            <Link to={`/comments/${p.id}`} key={p.id}>
+              <img
+                src={p.content_url}
+                alt="Post preview"
+                className="w-full h-24 object-cover rounded-md hover:opacity-80 transition-opacity"
+              />
+            </Link>
           ))}
         </div>
       </div>

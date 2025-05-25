@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import type { FormEvent } from 'react';
-import { supabase } from '@/lib/supabase/client';
-import { useNavigate } from 'react-router-dom';
-import { BackButton } from '@/components/BackButton';
-import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { nanoid } from 'nanoid';
+import React, { useState, useEffect } from "react";
+import type { FormEvent } from "react";
+import { supabase } from "@/lib/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { BackButton } from "@/components/BackButton";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { nanoid } from "nanoid";
 
 interface ProfileData {
   first_name: string | null;
@@ -14,16 +14,18 @@ interface ProfileData {
   job_title: string | null;
   website_url: string | null;
   avatar_url: string | null;
+  bio: string | null;
 }
 
 export default function ProfileEdit() {
   const [profile, setProfile] = useState<ProfileData>({
-    first_name: '',
-    last_name: '',
-    nick_name: '',
-    job_title: '',
-    website_url: '',
+    first_name: "",
+    last_name: "",
+    nick_name: "",
+    job_title: "",
+    website_url: "",
     avatar_url: null,
+    bio: "",
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,17 +39,27 @@ export default function ProfileEdit() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
-      const { data } = await supabase
-        .from('profiles')
+      const { data: profileData, error: fetchError } = await supabase
+        .from("profiles")
         .select(
-          'first_name,last_name,nick_name,job_title,website_url,avatar_url'
+          "first_name,last_name,nick_name,job_title,website_url,avatar_url,profile_bio:bio"
         )
-        .eq('id', user.id)
+        .eq("id", user.id)
         .single();
-      if (data) setProfile(data);
+      if (fetchError) {
+        console.error("Error loading profile:", fetchError.message);
+        setLoading(false);
+        return;
+      }
+      if (profileData) {
+        setProfile({
+          ...profileData,
+          bio: profileData.profile_bio,
+        });
+      }
       setLoading(false);
     }
     load();
@@ -69,30 +81,23 @@ export default function ProfileEdit() {
 
     // If user picked a new avatar, upload first
     if (avatarFile) {
-      const ext = avatarFile.name.split('.').pop();
+      const ext = avatarFile.name.split(".").pop();
       const fileName = `avatar_${nanoid()}.${ext}`;
       const filePath = `${user.id}/${fileName}`;
-      const { error: uploadError } = await supabase.storage
-        .from('useruploads')
-        .upload(filePath, avatarFile, { cacheControl: '3600' });
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("useruploads")
+        .upload(filePath, avatarFile, { cacheControl: "3600" });
       if (uploadError) {
-        console.error('Avatar upload error', uploadError.message);
-      } else {
-        // Use signed URL for private bucket
-        const { data: urlData, error: urlError } = await supabase.storage
-          .from('useruploads')
-          .createSignedUrl(filePath, 3600);
-        if (urlError) {
-          console.error('Signed URL error', urlError.message);
-        } else {
-          avatar_url = urlData.signedUrl;
-        }
+        console.error("Avatar upload error", uploadError.message);
+      } else if (uploadData?.path) {
+        // Save the storage path; the public URL will be resolved when fetching the profile
+        avatar_url = uploadData.path;
       }
     }
 
     // Update profile record
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from("profiles")
       .update({
         first_name: profile.first_name,
         last_name: profile.last_name,
@@ -100,13 +105,14 @@ export default function ProfileEdit() {
         job_title: profile.job_title,
         website_url: profile.website_url,
         avatar_url,
+        bio: profile.bio,
       })
-      .eq('id', user.id);
+      .eq("id", user.id);
     if (updateError) {
-      console.error('Profile update error', updateError.message);
+      console.error("Profile update error", updateError.message);
     }
     setSaving(false);
-    navigate('/profile');
+    navigate("/profile");
   };
 
   if (loading) {
@@ -134,7 +140,11 @@ export default function ProfileEdit() {
             src={
               avatarFile
                 ? URL.createObjectURL(avatarFile)
-                : profile.avatar_url || '/default-avatar.png'
+                : profile.avatar_url && !profile.avatar_url.startsWith("http")
+                ? supabase.storage
+                    .from("useruploads")
+                    .getPublicUrl(profile.avatar_url).data.publicUrl
+                : profile.avatar_url || "/default-avatar.png"
             }
             alt="Avatar"
             className="w-32 h-32 rounded-full object-cover mb-2"
@@ -154,7 +164,7 @@ export default function ProfileEdit() {
             <input
               type="text"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.first_name || ''}
+              value={profile.first_name || ""}
               onChange={(e) =>
                 setProfile({ ...profile, first_name: e.target.value })
               }
@@ -165,7 +175,7 @@ export default function ProfileEdit() {
             <input
               type="text"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.last_name || ''}
+              value={profile.last_name || ""}
               onChange={(e) =>
                 setProfile({ ...profile, last_name: e.target.value })
               }
@@ -176,7 +186,7 @@ export default function ProfileEdit() {
             <input
               type="text"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.nick_name || ''}
+              value={profile.nick_name || ""}
               onChange={(e) =>
                 setProfile({ ...profile, nick_name: e.target.value })
               }
@@ -187,7 +197,7 @@ export default function ProfileEdit() {
             <input
               type="text"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.job_title || ''}
+              value={profile.job_title || ""}
               onChange={(e) =>
                 setProfile({ ...profile, job_title: e.target.value })
               }
@@ -198,10 +208,19 @@ export default function ProfileEdit() {
             <input
               type="url"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.website_url || ''}
+              value={profile.website_url || ""}
               onChange={(e) =>
                 setProfile({ ...profile, website_url: e.target.value })
               }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Bio</label>
+            <textarea
+              className="mt-1 block w-full border rounded p-2"
+              rows={4}
+              value={profile.bio || ""}
+              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
             />
           </div>
         </div>
@@ -212,7 +231,7 @@ export default function ProfileEdit() {
           disabled={saving}
           className="w-full max-w-md py-3"
         >
-          {saving ? 'Saving…' : 'Save Changes'}
+          {saving ? "Saving…" : "Save Changes"}
         </Button>
       </form>
 

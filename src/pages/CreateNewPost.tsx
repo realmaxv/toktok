@@ -1,23 +1,23 @@
-import { cn } from '@/lib/utils';
-import { supabase } from '@/lib/supabase/client';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Image } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { useAuthContext } from '@/contexts/auth-context';
-import { nanoid } from 'nanoid';
+import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase/client";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Image } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/contexts/auth-context";
+import { nanoid } from "nanoid";
 
 // Name deines Buckets
-const BUCKET_NAME = 'useruploads';
+const BUCKET_NAME = "useruploads";
 
 export default function CreateNewPost({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<'div'>) {
-  const [caption, setCaption] = useState('');
+}: React.ComponentPropsWithoutRef<"div">) {
+  const [caption, setCaption] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,12 +34,12 @@ export default function CreateNewPost({
   // Upload-Funktion mit Debugging
   const handleImageUpload = async (file: File): Promise<string | null> => {
     if (!session?.user?.id) {
-      setError('You must be logged in to upload an image.');
+      setError("You must be logged in to upload an image.");
       return null;
     }
 
     const userId = session.user.id;
-    const fileExt = file.name.split('.').pop();
+    const fileExt = file.name.split(".").pop();
     const uniqueName = `${Date.now()}_${nanoid()}.${fileExt}`;
     const filePath = `${userId}/${uniqueName}`;
 
@@ -48,60 +48,54 @@ export default function CreateNewPost({
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(filePath, file, {
-        cacheControl: '3600',
+        cacheControl: "3600",
         contentType: file.type,
         metadata: { user_id: userId },
       });
 
     if (uploadError) {
-      console.error('Upload Error:', uploadError);
+      console.error("Upload Error:", uploadError);
       setError(`Upload failed: ${uploadError.message}`);
       return null;
     }
 
-    console.log('Upload successful:', uploadData);
+    console.log("Upload successful:", uploadData);
 
-    // Private Buckets: Signed URL
-    const { data: urlData, error: urlError } = await supabase.storage
+    // Public Buckets: Get Public URL
+    const { data: publicUrlData } = supabase.storage
       .from(BUCKET_NAME)
-      .createSignedUrl(filePath, 3600);
+      .getPublicUrl(filePath);
 
-    if (urlError) {
-      console.error('Signed URL Error:', urlError);
-      setError(`URL generation failed: ${urlError.message}`);
-      return null;
-    }
-
-    console.log('Signed URL:', urlData.signedUrl);
-    return urlData.signedUrl;
+    console.log("Public URL:", publicUrlData.publicUrl);
+    return publicUrlData.publicUrl;
   };
 
   const handleSubmit = async () => {
     if (!session?.user?.id) {
-      setError('You must be logged in to create a post.');
+      setError("Du musst eingeloggt sein.");
       return;
     }
 
-    if (!caption && !imageFile) {
-      setError('Please provide a caption or an image.');
+    if (!imageFile) {
+      setError("Bitte füge ein erst ein Bild zum uploaden ein.");
       return;
     }
 
-    if (!window.confirm('Create this post?')) return;
+    if (!window.confirm("Post erstellen?")) return;
 
     setError(null);
     setIsLoading(true);
 
     try {
-      let contentUrl = '';
+      let contentUrl = "";
       if (imageFile) {
         const url = await handleImageUpload(imageFile);
-        if (!url) throw new Error('Image upload failed');
+        if (!url) throw new Error("Image upload failed");
         contentUrl = url;
       }
 
       const now = new Date().toISOString();
-      const { error: insertError } = await supabase.from('posts').insert({
+      const { error: insertError } = await supabase.from("posts").insert({
         caption: caption || null,
         content_url: contentUrl,
         user_id: session.user.id,
@@ -110,17 +104,17 @@ export default function CreateNewPost({
       });
 
       if (insertError) throw insertError;
-      navigate('/home');
+      navigate("/home");
     } catch (err: unknown) {
-      console.error('Post creation error:', err);
-      setError(err instanceof Error ? err.message : 'Error creating post');
+      console.error("Post creation error:", err);
+      setError(err instanceof Error ? err.message : "Error creating post");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-    if (window.confirm('Cancel? Unsaved changes lost.')) navigate('/home');
+    if (window.confirm("Cancel? Unsaved changes lost.")) navigate("/home");
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +124,7 @@ export default function CreateNewPost({
   return (
     <div
       className={cn(
-        'min-h-screen flex items-center justify-center p-4 bg-stone-200 dark:bg-stone-950',
+        "min-h-screen flex items-center justify-center p-4 bg-stone-200 dark:bg-stone-950",
         className
       )}
       {...props}
@@ -138,7 +132,7 @@ export default function CreateNewPost({
       <Card className="w-full max-w-md p-0 bg-transparent">
         <CardHeader className="flex justify-between items-center">
           <CardTitle className="text-2xl p-4">Create New Post</CardTitle>
-          <Button variant="ghost" size="icon" onClick={() => navigate('/home')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/home")}>
             <ArrowLeft className="h-6 w-6" />
           </Button>
         </CardHeader>
@@ -163,7 +157,7 @@ export default function CreateNewPost({
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => document.getElementById('image-upload')?.click()}
+                onClick={() => document.getElementById("image-upload")?.click()}
               >
                 <Image className="h-5 w-5" />
               </Button>
@@ -185,7 +179,7 @@ export default function CreateNewPost({
                 disabled={isLoading}
                 className="w-full py-3 bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)]"
               >
-                {isLoading ? 'Posting...' : 'Post'}
+                {isLoading ? "Posting..." : "Post"}
               </Button>
               <Button
                 variant="outline"

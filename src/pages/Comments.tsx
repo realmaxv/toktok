@@ -2,13 +2,12 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase/client";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/contexts/auth-context";
-import { Image, Smile, Hash, Sparkles } from "lucide-react";
-import logo from '@/assets/logo.svg';
+import { Image, Smile, Hash, Sparkles, UserRoundPen } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 
 interface Post {
@@ -17,14 +16,34 @@ interface Post {
   content_url: string | null;
   user_id: string;
   created_at: string;
-  handle: string;
   first_name: string | null;
   last_name: string | null;
+  nick_name: string | null;
+  avatar_url: string | null;
 }
 
-export default function Comments({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
-  const { postId } = useParams<{ postId: string }>();
+export default function Comments({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
+  const [comments, setComments] = useState<
+    {
+      id: string;
+      content: string;
+      created_at: string;
+      user_id: string;
+      profiles: {
+        first_name: string | null;
+        last_name: string | null;
+        nick_name: string | null;
+        avatar_url: string | null;
+      } | null;
+    }[]
+  >([]);
   const [caption, setCaption] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,8 +54,8 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
   const MAX_CHARS = 500;
 
   useEffect(() => {
-    const fetchPost = async () => {
-      if (!postId) {
+    async function fetchPost() {
+      if (!id) {
         setError("No post ID provided");
         setIsLoading(false);
         return;
@@ -45,28 +64,98 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
       try {
         const { data, error } = await supabase
           .from("posts")
-          .select(`
+          .select(
+            `
             id,
             caption,
             content_url,
-            user_id,
             created_at,
-            public_profiles (handle),
-            profiles (first_name, last_name)
-          `)
-          .eq("id", postId)
+            user_id,
+            profiles (
+              avatar_url,
+              first_name,
+              last_name,
+              nick_name
+            )
+          `
+          )
+          .eq("id", id)
           .single();
 
         if (error) throw error;
-        setPost(data as Post);
+        setPost({
+          id: data.id,
+          caption: data.caption,
+          content_url: await (async () => {
+            if (data.content_url && !data.content_url.startsWith("http")) {
+              const { data: urlData } = await supabase.storage
+                .from("postcontent")
+                .getPublicUrl(data.content_url);
+              return urlData?.publicUrl ?? null;
+            }
+            return data.content_url;
+          })(),
+          user_id: data.user_id,
+          created_at: data.created_at,
+          first_name: data.profiles?.first_name ?? null,
+          last_name: data.profiles?.last_name ?? null,
+          nick_name: data.profiles?.nick_name ?? null,
+          avatar_url:
+            data.profiles?.avatar_url &&
+            !data.profiles.avatar_url.startsWith("http")
+              ? supabase.storage
+                  .from("useruploads")
+                  .getPublicUrl(data.profiles.avatar_url).data.publicUrl
+              : data.profiles?.avatar_url ?? null,
+        });
+
+        // Fetch comments for this post
+        const { data: commentData, error: commentError } = await supabase
+          .from("comments")
+          .select(
+            `
+            id,
+            content,
+            created_at,
+            user_id,
+            profiles (
+              first_name,
+              last_name,
+              nick_name,
+              avatar_url
+            )
+          `
+          )
+          .eq("post_id", id)
+          .order("created_at", { ascending: false });
+
+        if (commentError) throw commentError;
+        const processedComments = (commentData || []).map((comment) => {
+          const avatarPath = comment.profiles?.avatar_url;
+          const avatar =
+            avatarPath && !avatarPath.startsWith("http")
+              ? supabase.storage.from("useruploads").getPublicUrl(avatarPath)
+                  .data.publicUrl
+              : avatarPath;
+          return {
+            ...comment,
+            profiles: {
+              ...comment.profiles,
+              avatar_url: avatar,
+            },
+          };
+        });
+        setComments(processedComments);
       } catch (error: unknown) {
-        setError(error instanceof Error ? error.message : "Failed to load post");
+        setError(
+          error instanceof Error ? error.message : "Failed to load post"
+        );
       } finally {
         setIsLoading(false);
       }
-    };
+    }
     fetchPost();
-  }, [postId]);
+  }, [id, session?.user?.id]);
 
   const handleCaptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
@@ -82,15 +171,15 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
     }
     const fileExt = file.name.split(".").pop();
     const fileName = `${session.user.id}/${Date.now()}.${fileExt}`;
-    const { error: uploadError, data } = await supabase.storage
-      .from("post-content")
+    const { error: uploadError } = await supabase.storage
+      .from("postcontent")
       .upload(fileName, file);
     if (uploadError) {
       setError("Failed to upload image: " + uploadError.message);
       return null;
     }
     const { data: publicData } = supabase.storage
-      .from("post-content")
+      .from("postcontent")
       .getPublicUrl(fileName);
     return publicData?.publicUrl || null;
   };
@@ -105,7 +194,7 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
       setError("You must be logged in to reply.");
       return;
     }
-    if (!caption && !imageFile) {
+    if ((!caption || caption.trim() === "") && !imageFile) {
       setError("Please provide a caption or an image.");
       return;
     }
@@ -120,8 +209,8 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
       }
 
       const { error } = await supabase.from("comments").insert({
-        content: caption || null,
-        post_id: postId,
+        content: caption.trim(),
+        post_id: id!,
         user_id: session.user.id,
         created_at: new Date().toISOString(),
       });
@@ -130,9 +219,11 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
 
       setCaption("");
       setImageFile(null);
-      navigate("/home");
+      navigate("/");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "Failed to submit comment");
+      setError(
+        error instanceof Error ? error.message : "Failed to submit comment"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +231,8 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
 
   const handleEmojiClick = () => console.log("Emoji functionality placeholder");
   const handleGifClick = () => console.log("GIF functionality placeholder");
-  const handleHashtagClick = () => console.log("Hashtag functionality placeholder");
+  const handleHashtagClick = () =>
+    console.log("Hashtag functionality placeholder");
   const handleAIClick = () => console.log("AI text generation placeholder");
 
   const timeSince = (date: Date) => {
@@ -157,10 +249,16 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
   };
 
   return (
-    <div className={cn("min-h-screen flex flex-col p-4 bg-stone-200 dark:bg-stone-950", className)} {...props}>
+    <div
+      className={cn(
+        "min-h-screen flex flex-col p-4 bg-stone-200 dark:bg-stone-950",
+        className
+      )}
+      {...props}
+    >
       <Card className="w-full max-w-md flex flex-col border-none shadow-none bg-stone-200 dark:bg-stone-950">
         <CardHeader className="flex flex-row items-center justify-between">
-          <BackButton onClick={() => navigate("/home")} />
+          <BackButton onClick={() => navigate("/")} />
           <Button
             type="button"
             className="text-lg h-13 bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)]"
@@ -199,7 +297,9 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
                   type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => document.getElementById("image-upload")?.click()}
+                  onClick={() =>
+                    document.getElementById("image-upload")?.click()
+                  }
                   aria-label="Upload image"
                 >
                   <Image className="h-5 w-5" />
@@ -258,7 +358,7 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
             <div className="flex flex-col gap-6">
               <div className="flex items-center gap-2">
                 <img
-                  src={post.content_url || "/placeholder-avatar.png"}
+                  src={post.avatar_url || "/placeholder-avatar.png"}
                   alt="User avatar"
                   className="w-10 h-10 rounded-full"
                 />
@@ -269,7 +369,8 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
                       : "Unknown"}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    @{post.handle} • {timeSince(new Date(post.created_at))} ago
+                    @{post.nick_name || "unknown"} •{" "}
+                    {timeSince(new Date(post.created_at))} ago
                   </p>
                 </div>
               </div>
@@ -283,30 +384,173 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
                 )}
                 <p className="text-sm">{post.caption || "No caption"}</p>
               </div>
-              {session?.user && (
-                <div className="flex items-center gap-2">
-                  <img
-                    src="/placeholder-avatar.png"
-                    alt="Current user avatar"
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div>
-                    <p className="text-sm">
-                      {session.user.user_metadata?.first_name ||
-                        session.user.user_metadata?.last_name
-                        ? `${session.user.user_metadata?.first_name || ""} ${
-                            session.user.user_metadata?.last_name || ""
-                          }`
-                        : "Current User"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      @{session.user.user_metadata?.handle || "user"}
-                    </p>
-                  </div>
-                </div>
-              )}
+              {/* Kommentare unter dem Post */}
+              <div className="flex flex-col gap-4 mt-4">
+                <h3 className="text-sm font-bold">Kommentare</h3>
+                {comments.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Noch keine Kommentare.
+                  </p>
+                ) : (
+                  comments.map((comment) => (
+                    <div key={comment.id} className="flex gap-3">
+                      <img
+                        src={
+                          comment.profiles?.avatar_url ||
+                          "/placeholder-avatar.png"
+                        }
+                        alt="User avatar"
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold">
+                          {comment.profiles?.first_name ||
+                          comment.profiles?.last_name
+                            ? `${comment.profiles?.first_name || ""} ${
+                                comment.profiles?.last_name || ""
+                              }`
+                            : "Unbekannt"}
+                          <span className="ml-2 text-muted-foreground text-xs">
+                            @{comment.profiles?.nick_name || "user"}
+                          </span>
+                        </p>
+                        {editingCommentId === comment.id ? (
+                          <>
+                            <Textarea
+                              value={editContent}
+                              onChange={(e) => setEditContent(e.target.value)}
+                              rows={2}
+                              className="mt-1 mb-2"
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                className="px-1.5 py-0.5 text-xs"
+                                onClick={async () => {
+                                  const { error } = await supabase
+                                    .from("comments")
+                                    .update({ content: editContent })
+                                    .eq("id", comment.id);
+                                  if (!error) {
+                                    setComments((prev) =>
+                                      prev.map((c) =>
+                                        c.id === comment.id
+                                          ? { ...c, content: editContent }
+                                          : c
+                                      )
+                                    );
+                                    setEditingCommentId(null);
+                                  }
+                                }}
+                              >
+                                Speichern
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="px-1.5 py-0.5 text-xs"
+                                onClick={async () => {
+                                  const { error } = await supabase
+                                    .from("comments")
+                                    .delete()
+                                    .eq("id", comment.id);
+                                  if (!error) {
+                                    setComments((prev) =>
+                                      prev.filter((c) => c.id !== comment.id)
+                                    );
+                                    setEditingCommentId(null);
+                                  }
+                                }}
+                              >
+                                Löschen
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="px-1.5 py-0.5 text-xs"
+                                onClick={() => setEditingCommentId(null)}
+                              >
+                                Abbrechen
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm">{comment.content}</p>
+                            {comment.user_id === session?.user?.id && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <button
+                                  onClick={() =>
+                                    editingCommentId === comment.id
+                                      ? setEditingCommentId(null)
+                                      : (setEditingCommentId(comment.id),
+                                        setEditContent(comment.content))
+                                  }
+                                  className="text-muted-foreground hover:text-foreground"
+                                  aria-label="Kommentar bearbeiten"
+                                >
+                                  <UserRoundPen className="w-4 h-4" />
+                                </button>
+                                {editingCommentId === comment.id && (
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      className="px-1.5 py-0.5 text-xs"
+                                      onClick={async () => {
+                                        const { error } = await supabase
+                                          .from("comments")
+                                          .update({ content: editContent })
+                                          .eq("id", comment.id);
+                                        if (!error) {
+                                          setComments((prev) =>
+                                            prev.map((c) =>
+                                              c.id === comment.id
+                                                ? { ...c, content: editContent }
+                                                : c
+                                            )
+                                          );
+                                          setEditingCommentId(null);
+                                        }
+                                      }}
+                                    >
+                                      Speichern
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      className="px-1.5 py-0.5 text-xs"
+                                      onClick={async () => {
+                                        const { error } = await supabase
+                                          .from("comments")
+                                          .delete()
+                                          .eq("id", comment.id);
+                                        if (!error) {
+                                          setComments((prev) =>
+                                            prev.filter(
+                                              (c) => c.id !== comment.id
+                                            )
+                                          );
+                                        }
+                                      }}
+                                    >
+                                      Löschen
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {timeSince(new Date(comment.created_at))} ago
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
               <div className="grid gap-2">
-                <Label htmlFor="comment">Add a comment</Label>
+                <Label htmlFor="comment">Schreibe einen Kommentar</Label>
                 <Textarea
                   id="comment"
                   placeholder="What's on your mind?"
@@ -325,7 +569,9 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
                   type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => document.getElementById("image-upload")?.click()}
+                  onClick={() =>
+                    document.getElementById("image-upload")?.click()
+                  }
                   aria-label="Upload image"
                 >
                   <Image className="h-5 w-5" />
@@ -382,7 +628,9 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
             </div>
           ) : (
             <div className="flex flex-col gap-6">
-              <p className="text-sm text-muted-foreground">No post data available</p>
+              <p className="text-sm text-muted-foreground">
+                No post data available
+              </p>
               <div className="grid gap-2">
                 <Label htmlFor="comment">Add a comment</Label>
                 <Textarea
@@ -403,7 +651,9 @@ export default function Comments({ className, ...props }: React.ComponentPropsWi
                   type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => document.getElementById("image-upload")?.click()}
+                  onClick={() =>
+                    document.getElementById("image-upload")?.click()
+                  }
                   aria-label="Upload image"
                 >
                   <Image className="h-5 w-5" />

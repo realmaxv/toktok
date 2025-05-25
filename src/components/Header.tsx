@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import logo from '@/assets/logo.svg';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase/client';
+import { useState, useEffect } from "react";
+import logo from "@/assets/logo.svg";
+import { NavLink, useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase/client";
 
 function Header() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,18 +14,30 @@ function Header() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('avatar_url')
-        .eq('id', user.id)
+      setUserId(user.id);
+      const { data: profileData, error: fetchError } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
         .single();
-      if (error) {
-        console.error('Error fetching avatar:', error.message);
+      if (fetchError) {
+        console.error("Error fetching avatar:", fetchError.message);
+        setAvatarUrl("/default-avatar.png");
+        return;
       } else {
-        setAvatarUrl(data.avatar_url);
+        let publicUrl = "/default-avatar.png";
+        if (profileData?.avatar_url?.startsWith("http")) {
+          publicUrl = profileData.avatar_url;
+        } else if (profileData?.avatar_url) {
+          const { data: urlData } = supabase.storage
+            .from("useruploads")
+            .getPublicUrl(profileData.avatar_url);
+          publicUrl = urlData?.publicUrl ?? publicUrl;
+        }
+        setAvatarUrl(publicUrl);
       }
     }
     loadAvatar();
@@ -37,9 +50,9 @@ function Header() {
         <h2 className="font-bold text-xl">TokTok</h2>
       </div>
 
-      <NavLink to="/profile">
+      <NavLink to={userId ? `/profile/${userId}` : "/login"}>
         <img
-          src={avatarUrl || '/default-avatar.png'}
+          src={avatarUrl || "/default-avatar.png"}
           alt="Avatar"
           className="w-8 h-8 rounded-full object-cover border-2"
         />

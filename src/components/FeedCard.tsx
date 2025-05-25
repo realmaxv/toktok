@@ -1,9 +1,9 @@
-import placeholder from '@/assets/avatar_placeholder.png';
-import { supabase } from '@/lib/supabase/client';
-import { useQueryClient } from '@tanstack/react-query';
-import { Heart, MessageCircleMore } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router';
+import placeholder from "@/assets/avatar_placeholder.png";
+import { supabase } from "@/lib/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { Heart, MessageCircleMore } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 type FeedCardProps = {
   id: string;
@@ -38,62 +38,62 @@ function FeedCard({
   useEffect(() => {
     if (!hasLoadedFromStorage.current) {
       const stored = localStorage.getItem(`liked_${id}`);
-      setLiked(stored === 'true' || likedByUser);
+      setLiked(stored === "true" || likedByUser);
       hasLoadedFromStorage.current = true;
     }
   }, [id, likedByUser]);
 
   const handleLike = async () => {
-    console.log('post_id:', id);
-    console.log('user_id:', userId);
+    console.log("post_id:", id);
+    console.log("user_id:", userId);
 
     const { data: existingLike, error } = await supabase
-      .from('post_likes')
-      .select('*')
-      .eq('post_id', id)
-      .eq('user_id', userId)
+      .from("post_likes")
+      .select("*")
+      .eq("post_id", id)
+      .eq("user_id", userId)
       .maybeSingle();
 
     if (error) {
-      console.error('Fehler beim Prüfen des Likes:', error);
+      console.error("Fehler beim Prüfen des Likes:", error);
       return;
     }
 
     if (existingLike) {
       const { error: deleteError } = await supabase
-        .from('post_likes')
+        .from("post_likes")
         .delete()
-        .eq('post_id', id)
-        .eq('user_id', userId);
+        .eq("post_id", id)
+        .eq("user_id", userId);
 
       if (deleteError) {
-        console.error('Fehler beim Entfernen des Likes:', deleteError);
+        console.error("Fehler beim Entfernen des Likes:", deleteError);
         return;
       }
 
       setLiked(false);
       setLikeCount((prev) => prev - 1);
-      console.log('Removing localStorage liked:', id);
+      console.log("Removing localStorage liked:", id);
       localStorage.removeItem(`liked_${id}`);
     } else {
       // Like
-      const { error: insertError } = await supabase.from('post_likes').insert({
+      const { error: insertError } = await supabase.from("post_likes").insert({
         post_id: id,
         user_id: userId,
       });
 
       if (insertError) {
-        console.error('Fehler beim Hinzufügen des Likes:', insertError);
+        console.error("Fehler beim Hinzufügen des Likes:", insertError);
         return;
       }
 
       setLiked(true);
       setLikeCount((prev) => prev + 1);
-      console.log('Setting localStorage liked:', id);
-      localStorage.setItem(`liked_${id}`, 'true');
+      console.log("Setting localStorage liked:", id);
+      localStorage.setItem(`liked_${id}`, "true");
     }
 
-    queryClient.invalidateQueries({ queryKey: ['posts'] });
+    queryClient.invalidateQueries({ queryKey: ["posts"] });
   };
 
   return (
@@ -107,7 +107,7 @@ function FeedCard({
     >
       <article className="rounded-2xl overflow-hidden flex flex-col">
         <Link
-          to={`/profile-detail`}
+          to={`/profile/${userId}`}
           className="flex items-center p-4 space-x-4"
         >
           <div
@@ -135,13 +135,16 @@ function FeedCard({
               <Heart
                 className={`w-7 h-7 ${
                   liked
-                    ? 'fill-[var(--color-brand-pink)] text-[var(--color-brand-pink)]'
-                    : ''
+                    ? "fill-[var(--color-brand-pink)] text-[var(--color-brand-pink)]"
+                    : ""
                 }`}
               />
               <span className="font-semibold">{likeCount}</span>
             </button>
-            <Link to="/comments" className="flex items-center space-x-2">
+            <Link
+              to={`/comments/${id}`}
+              className="flex items-center space-x-2"
+            >
               <MessageCircleMore className="w-7 h-7" />
               <span className="font-semibold">{commentsCount}</span>
             </Link>

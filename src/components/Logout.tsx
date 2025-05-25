@@ -1,7 +1,18 @@
+import { supabase } from "@/lib/supabase/client";
+import { useNavigate } from "react-router-dom";
+
 export default function Logout() {
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    window.location.href = '/login';
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    // Optional: clear your app's local storage
+    localStorage.removeItem("user");
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error signing out:", error.message);
+    } else {
+      navigate("/login");
+    }
   };
 
   return (
