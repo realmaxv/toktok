@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Search as SearchIcon } from "lucide-react";
+import { BackButton } from "@/components/BackButton";
 
 type SearchMode = "user" | "post";
 
@@ -173,16 +174,10 @@ export default function Search({
       {...props}
     >
       <Card className="w-full max-w-md flex flex-col border-none shadow-none bg-stone-200 dark:bg-stone-950">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-start">
+           <BackButton onClick={() => navigate("/")} />
           <CardTitle className="text-3xl p-4">Search</CardTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/home")}
-            aria-label="Back to home"
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </Button>
+     
         </CardHeader>
         {/* <div className="flex items-center justify-center p-4">
           <img src={logo} alt="TokTok Logo" className="w-[25px] h-[25px]" />
