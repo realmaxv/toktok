@@ -3,7 +3,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        toktok: '#FF4D67',
+        toktok: "#FF4D67",
       },
     },
   },
