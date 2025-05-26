@@ -54,18 +54,17 @@ const stoneVariants: Variants = {
   }),
 };
 
-export const Loader: React.FC<{
-  maxStones?: number;
-}> = ({ maxStones = 10 }) => {
+export const Loader: React.FC<{ maxStones?: number }> = ({
+  maxStones = 10,
+}) => {
   const [exploding, setExploding] = useState(false);
 
-  // Trigger Explosion
+  // Trigger Explosion nach 1 Sekunde
   useEffect(() => {
     const t = setTimeout(() => setExploding(true), 1000);
     return () => clearTimeout(t);
   }, []);
 
-  // Stones
   const stones = useMemo(() => {
     const min = 20;
     const max = Math.max(min, maxStones);
@@ -75,16 +74,10 @@ export const Loader: React.FC<{
 
   return (
     <div
-      className="relative flex items-center justify-center"
-      style={{
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-        background: 'transparent',
-      }}
+      className="fixed inset-0 flex items-center justify-center bg-white dark:bg-black z-50"
+      style={{ pointerEvents: 'none' }}
     >
       {stones.map((s) => {
-        // Zwei Farben kreuzweise
         const color = s.id % 2 === 0 ? '#FF7185' : '#FFB8C2';
         return (
           <motion.div
