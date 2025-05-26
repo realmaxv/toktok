@@ -1,3 +1,4 @@
+
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
@@ -10,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Search as SearchIcon } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+
 
 type SearchMode = 'user' | 'post';
 
@@ -167,6 +169,7 @@ export default function Search({
   );
 
   return (
+
     <>
       <Header />
       <div
@@ -189,6 +192,7 @@ export default function Search({
             </Button>
           </CardHeader>
           {/* <div className="flex items-center justify-center p-4">
+
           <img src={logo} alt="TokTok Logo" className="w-[25px] h-[25px]" />
         </div> */}
           <CardContent>

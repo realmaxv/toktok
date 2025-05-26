@@ -110,7 +110,9 @@ function FeedCard({
         gap-0 p-0
       "
     >
+
       <article className="relative flex flex-col">
+
         <div className="flex items-center p-4 space-x-4">
           <Link to={`/profile/${authorId}`}>
             <div
@@ -126,10 +128,12 @@ function FeedCard({
           </div>
         </div>
 
+
         <div
           className="relative w-full pb-[120%] bg-center bg-cover"
           style={{ backgroundImage: `url(${imagePath})` }}
         />
+
 
         <div className="p-4 flex flex-col space-y-4">
           <p className="text-base leading-snug">{caption}</p>

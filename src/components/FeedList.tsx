@@ -110,7 +110,7 @@ function FeedList() {
         msOverflowStyle: 'none',
         scrollbarWidth: 'none',
       }}
-      className="grid grid-cols-1 md:grid-cols-3 flex-col pt-18 pb-22 gap-6 w-full h-screen overflow-scroll scroll-smooth"
+      className="grid grid-cols-1 md:grid-cols-3 flex-col pt-18 pb-22 w-full h-screen overflow-scroll scroll-smooth divide-y divide-stone-300 dark:divide-stone-800 md:divide-x md:divide-stone-300 md:dark:divide-stone-800"
     >
       {data
         ?.filter((single) => single.profiles !== null)

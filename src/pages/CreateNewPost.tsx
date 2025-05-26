@@ -6,6 +6,7 @@ type Post = {
   created_at: string;
   updated_at: string;
 };
+
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase/client';
 import { useState } from 'react';
@@ -149,6 +150,7 @@ export default function CreateNewPost({
   };
 
   return (
+
     <>
       <Header />
       <div
@@ -184,6 +186,7 @@ export default function CreateNewPost({
                 <div className="text-sm text-muted-foreground text-right">
                   {caption.length}/{MAX_CHARS}
                 </div>
+
               </div>
 
               <div className="flex items-center space-x-4">
