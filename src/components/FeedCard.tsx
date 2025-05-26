@@ -126,10 +126,12 @@ function FeedCard({
           </div>
         </div>
 
-        <div
-          className="relative w-full pb-[100%] bg-center bg-cover"
-          style={{ backgroundImage: `url(${imagePath})` }}
-        />
+        <Link to={`/comments/${id}`}>
+          <div
+            className="relative w-full pb-[100%] bg-center bg-cover hover:opacity-80 transition-opacity"
+            style={{ backgroundImage: `url(${imagePath})` }}
+          />
+        </Link>
 
         <div className="p-4 flex flex-col space-y-4">
           <p className="text-base leading-snug">{caption}</p>
