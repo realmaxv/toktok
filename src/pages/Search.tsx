@@ -136,7 +136,7 @@ export default function Search({
       navigate("/profile/me");
     } else {
       console.log("Navigating to profile of", user_id);
-      navigate(`/profiles/${user_id}`);
+      navigate(`/profile/${user_id}`);
     }
   };
 
