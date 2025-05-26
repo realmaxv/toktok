@@ -142,7 +142,7 @@ export default function Profile() {
         <p className="text-sm text-gray-600 dark:text-gray-400">
           {profile.job_title}
         </p>
-        <p className="mt-3 text-gray-700 dark:text-gray-300 max-w-md">
+        <p className="mt-3 text-gray-700 dark:text-gray-300 max-w-md whitespace-pre-wrap">
           {profile.bio
             ? profile.bio
             : "Hier steht deine Bio. Bearbeite dein Profil, um sie zu ändern."}

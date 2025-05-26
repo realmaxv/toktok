@@ -135,7 +135,9 @@ export default function ProfileDetails() {
 
   return (
     <>
-      <ProfileDetailsHeader />
+      <ProfileDetailsHeader
+        nickname={profile?.nick_name || profile?.first_name || ""}
+      />
       <div className="flex flex-col items-center px-6 py-8 min-h-[calc(100vh-120px)] overflow-y-auto pt-[72px] pb-[72px] text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-900">
         {profile && (
           <>
@@ -154,7 +156,7 @@ export default function ProfileDetails() {
               <span>{profile.follower_count} Follower</span>
               <span>{profile.following_count} Following</span>
             </div>
-            <p className="mt-2 text-center max-w-md text-gray-700 dark:text-gray-300">
+            <p className="mt-2 text-center max-w-md text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
               {profile.bio}
             </p>
             {currentUserId && id && currentUserId !== id && (
