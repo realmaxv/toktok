@@ -110,7 +110,7 @@ function FeedCard({
         gap-0 p-0
       "
     >
-      <article className="overflow-hidden flex flex-col">
+      <article className="overflow-hidden flex flex-col bg-stone-200 dark:bg-stone-950 hover:bg-stone-300 dark:hover:bg-stone-900 active:bg-stone-300 dark:active:bg-stone-900">
         <div className="flex items-center p-4 space-x-4">
           <Link to={`/profile/${authorId}`}>
             <div
@@ -126,10 +126,12 @@ function FeedCard({
           </div>
         </div>
 
-        <div
-          className="relative w-full pb-[100%] bg-center bg-cover"
-          style={{ backgroundImage: `url(${imagePath})` }}
-        />
+        <Link to={`/comments/${id}`}>
+          <div
+            className="relative w-full pb-[100%] bg-center bg-cover hover:opacity-80 transition-opacity"
+            style={{ backgroundImage: `url(${imagePath})` }}
+          />
+        </Link>
 
         <div className="p-4 flex flex-col space-y-4">
           <p className="text-base leading-snug">{caption}</p>
