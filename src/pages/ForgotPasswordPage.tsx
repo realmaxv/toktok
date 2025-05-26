@@ -22,7 +22,7 @@ export default function ForgotPasswordPage({
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`, // du kannst das später anpassen
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
       setSuccess(true);
@@ -41,12 +41,12 @@ export default function ForgotPasswordPage({
       )}
       {...props}
     >
-      <Card className="w-full max-w-md flex flex-col border-none shadow-none bg-stone-200 dark:bg-stone-950">
+      <Card className="w-full max-w-md flex text-center flex-col border-none shadow-none bg-stone-200 dark:bg-stone-950">
         <CardHeader>
           <CardTitle className="text-3xl p-4">Reset Your Password</CardTitle>
         </CardHeader>
         <div className="flex items-center justify-center p-4">
-          <img src={logo} alt="TokTok Logo" className="w-[25px] h-[25px]" />
+          <img src={logo} alt="TokTok Logo" className="w-25 h-25" />
         </div>
         <CardContent>
           {success ? (
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage({
 
               <Button
                 type="submit"
-                className="text-lg mt-2 h-13 w-full bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)]"
+                className="cursor-pointer text-lg mt-2 h-13 w-full bg-[var(--color-button-pink-active)] text-white hover:bg-[var(--color-brand-pink)] active:scale-95 active:bg-[var(--color-button-pink-dark)] transition-transform duration-100"
                 disabled={isLoading}
               >
                 {isLoading ? "Sending email..." : "Reset Password"}
