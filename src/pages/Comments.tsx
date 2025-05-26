@@ -327,9 +327,7 @@ export default function Comments({
             {isLoading ? "Replying..." : "Reply"}
           </Button>
         </CardHeader>
-        {/* <div className="flex items-center justify-center p-4">
-          <img src={logo} alt="TokTok Logo" className="w-[25px] h-[25px]" />
-        </div> */}
+
         <CardContent>
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Loading...</p>
@@ -443,7 +441,7 @@ export default function Comments({
                 )}
                 <p className="text-sm">{post.caption || "No caption"}</p>
               </div>
-              {/* Post löschen Button für Ersteller */}
+
               {session?.user?.id === post.user_id && (
                 <Button
                   variant="destructive"

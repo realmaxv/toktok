@@ -14,6 +14,7 @@ interface ProfileData {
   website_url: string | null;
   nick_name: string | null;
   created_at: string | null;
+  bio: string | null;
 }
 
 interface PostPreview {
@@ -25,6 +26,8 @@ export default function Profile() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [posts, setPosts] = useState<PostPreview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,15 +38,24 @@ export default function Profile() {
         navigate("/login");
         return;
       }
+      const { count: fetchedFollowerCount } = await supabase
+        .from("followers")
+        .select("*", { count: "exact", head: true })
+        .eq("following_id", userId ?? "");
 
-      // Fetch profile
+      const { count: fetchedFollowingCount } = await supabase
+        .from("followers")
+        .select("*", { count: "exact", head: true })
+        .eq("follower_id", userId ?? "");
+
+      setFollowerCount(fetchedFollowerCount ?? 0);
+      setFollowingCount(fetchedFollowingCount ?? 0);
       const { data: profileData } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
 
-      // Avatar-URL auflösen
       let avatarUrl = "/default-avatar.png";
       if (profileData?.avatar_url) {
         const raw = profileData.avatar_url.replace(/^\/+/, "");
@@ -107,10 +119,8 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col min-h-screen pt-20 pb-20">
-      {/* Header */}
       <ProfileHeader />
 
-      {/* Profile Info */}
       <div className="flex flex-col items-center text-center px-6 py-8 ">
         <div className="relative">
           <img
@@ -118,7 +128,7 @@ export default function Profile() {
             alt="Avatar"
             className="w-32 h-32 rounded-full object-cover"
           />
-          {/* Edit icon placeholder */}
+
           <Link
             to="/profile-edit"
             className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow"
@@ -133,8 +143,9 @@ export default function Profile() {
           {profile.job_title}
         </p>
         <p className="mt-3 text-gray-700 dark:text-gray-300 max-w-md">
-          {/* Bio stub */}
-          Hier steht deine Bio. Bearbeite dein Profil, um sie zu ändern.
+          {profile.bio
+            ? profile.bio
+            : "Hier steht deine Bio. Bearbeite dein Profil, um sie zu ändern."}
         </p>
         {profile.website_url && (
           <a
@@ -148,27 +159,25 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-3 text-center py-4">
         <div>
           <div className="text-lg font-bold">{posts.length}</div>
           <div className="text-xs text-gray-500 dark:text-gray-400">Posts</div>
         </div>
         <div>
-          <div className="text-lg font-bold">0</div>
+          <div className="text-lg font-bold">{followerCount}</div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
             Followers
           </div>
         </div>
         <div>
-          <div className="text-lg font-bold">0</div>
+          <div className="text-lg font-bold">{followingCount}</div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
             Following
           </div>
         </div>
       </div>
 
-      {/* Feeds Preview */}
       <div className="px-6 py-8 flex-1 ">
         <h3 className="flex items-center text-lg font-medium mb-4 text-[var(--color-brand-pink)]">
           Feeds

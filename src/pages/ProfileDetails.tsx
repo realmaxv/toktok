@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase/client";
 
-interface Profile {
+export interface Profile {
   id: string;
   first_name: string | null;
   last_name: string | null;
@@ -101,7 +101,6 @@ export default function ProfileDetails() {
       );
       setPosts(processedPosts);
 
-      // Check if current user is following this profile
       if (sessionData.user?.id && id && id !== sessionData.user.id) {
         const { data: followData } = await supabase
           .from("followers")
@@ -164,7 +163,7 @@ export default function ProfileDetails() {
                 className="mt-4 px-4 py-2 rounded font-medium transition-colors text-white"
                 style={{ backgroundColor: "#ff4d67" }}
               >
-                {isFollowing ? "Entfolgt" : "Folgen"}
+                {isFollowing ? "Entfolgen" : "Folgen"}
               </button>
             )}
           </>
