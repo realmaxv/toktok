@@ -110,7 +110,7 @@ function FeedCard({
         gap-0 p-0
       "
     >
-      <article className="overflow-hidden flex flex-col">
+      <article className="overflow-hidden flex flex-col bg-stone-200 dark:bg-stone-950 hover:bg-stone-300 dark:hover:bg-stone-900 active:bg-stone-300 dark:active:bg-stone-900">
         <div className="flex items-center p-4 space-x-4">
           <Link to={`/profile/${authorId}`}>
             <div
