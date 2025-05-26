@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabase/client";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.svg";
 import { Mail, LockKeyhole } from "lucide-react";
@@ -68,17 +67,16 @@ export default function SignUpForm({
           </CardContent>
         </Card>
       ) : (
-        <Card className="w-full max-w-md flex flex-col border-none shadow-none bg-stone-200 dark:bg-stone-950">
+        <Card className="w-full max-w-md flex flex-col text-center border-none shadow-none bg-stone-200 dark:bg-stone-950">
           <CardHeader>
             <CardTitle className="text-3xl p-4">Create Your Account</CardTitle>
           </CardHeader>
           <div className="flex items-center justify-center p-4">
-            <img src={logo} alt="TokTok Logo" className="w-[25px] h-[25px]" />
+            <img src={logo} alt="TokTok Logo" className="w-25 h-25" />
           </div>
           <CardContent>
             <form onSubmit={handleSignUp} className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                     <Mail className="w-4 h-4 text-muted-foreground" />
@@ -97,7 +95,6 @@ export default function SignUpForm({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                     <LockKeyhole className="w-4 h-4 text-muted-foreground" />
@@ -116,7 +113,6 @@ export default function SignUpForm({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="confirm-password">Confirm Password</Label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                     <LockKeyhole className="w-4 h-4 text-muted-foreground" />
