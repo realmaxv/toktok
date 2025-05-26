@@ -161,15 +161,9 @@ export default function CreateNewPost({
         {...props}
       >
         <Card className="w-full max-w-md p-0 bg-transparent">
-          <CardHeader className="flex justify-between items-center">
+          <CardHeader className="flex justify-center items-center">
             <CardTitle className="text-2xl p-4">Create New Post</CardTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/home')}
-            >
-              <ArrowLeft className="h-6 w-6" />
-            </Button>
+
           </CardHeader>
           <CardContent className="p-4">
             <div className="flex flex-col space-y-6">

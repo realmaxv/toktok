@@ -9,7 +9,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-import { NavLink } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import Logout from './Logout';
 
 type NavItem = {
@@ -25,13 +25,7 @@ const navItems: NavItem[] = [
   { to: '/newpost', icon: <CirclePlus />, label: 'New Post', onMobile: true },
   { to: '/shuffle', icon: <Shuffle />, label: 'Shuffle', onMobile: true },
   { to: '/profile', icon: <User />, label: 'Profile', onMobile: true },
-  // Desktop-only items
-  {
-    to: '/profile-edit',
-    icon: <User />,
-    label: 'Edit Profile',
-    onMobile: false,
-  },
+  { to: '/profile-edit', icon: <User />, label: 'Edit Profile', onMobile: false },
   { to: '/settings', icon: <Settings />, label: 'Settings', onMobile: false },
 ];
 
@@ -102,6 +96,10 @@ const Footer: React.FC = () => {
     setDragging(false);
     footerRef.current?.releasePointerCapture(e.pointerId);
     setTranslateY((prev) => (prev > maxTranslate / 2 ? maxTranslate : 0));
+    
+    if (window.location.pathname === '/shuffle' && e.target instanceof Node && e.target.closest('button')) {
+      return;
+    }
   };
 
   // Filter items for mobile footer (exclude desktop-only)
@@ -135,7 +133,7 @@ const Footer: React.FC = () => {
                 `flex items-center gap-3 p-3 rounded-lg text-lg font-medium ${
                   isActive
                     ? 'bg-brand-pink/20 text-brand-pink'
-                    : 'text-stone-600 dark:text-stone-400 dark:hover:text-stone-500 hover:text-stone-500'
+                    : 'text-stone-600 dark:text-stone-400'
                 }`
               }
               onClick={() => setSidebarOpen(false)}
@@ -172,66 +170,10 @@ const Footer: React.FC = () => {
             to="/settings"
             className="flex items-center gap-3 p-4 text-lg"
           >
-            <Settings />
+            <Settings className="w-6 h-6 text-gray-500" />
             <span>Settings</span>
-          </NavLink>
-          <NavLink to="/about" className="flex items-center gap-3 p-4 text-lg">
-            About
-          </NavLink>
-
-          <NavLink
-            to="/privacy"
-            className="flex items-center gap-3 p-4 text-lg"
-          >
-            Privacy
-          </NavLink>
-          <div className="flex items-center gap-3 p-4 text-lg">
             <Logout />
-          </div>
-          <div className="flex items-center gap-3 p-4 text-lg">
-            <p>Created by</p>
-            <p>Follow us on GitHub</p>
-          </div>
-          <div className="flex items-center gap-3 p-4 text-lg">
-            <a
-              href="https://github.com/TeamTokTok"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-brand-pink"
-            ></a>
-            <a href="https://github.com/ninjagrrrl" target="_blank">
-              Jule
-              <img
-                src="https://github.com/ninjagrrrl.png"
-                alt=""
-                className="w-10 h-10 rounded-full"
-              />
-            </a>
-            <a href="https://github.com/realmaxv" target="_blank">
-              Max
-              <img
-                src="https://github.com/realmaxv.png"
-                alt=""
-                className="w-10 h-10 rounded-full"
-              />
-            </a>
-            <a href="https://github.com/HAO-317" target="_blank">
-              Hao
-              <img
-                src="https://github.com/HAO-317.png"
-                alt=""
-                className="w-10 h-10 rounded-full"
-              />
-            </a>
-            <a href="https://github.com/elmin-hasanov" target="_blank">
-              Elmin
-              <img
-                src="https://github.com/elmin-hasanov.png"
-                alt=""
-                className="w-10 h-10 rounded-full"
-              />
-            </a>
-          </div>
+          </NavLink>
         </div>
       </section>
 
@@ -241,7 +183,7 @@ const Footer: React.FC = () => {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        className="fixed bottom-0 w-full h-18 pt-1 gap-10 flex items-center justify-around p-4 bg-white/80 dark:bg-stone-950/90 backdrop-blur-lg md:hidden"
+        className="fixed bottom-0 w-full h-18 pt-0 flex items-center justify-around p-4 bg-white/80 dark:bg-stone-950/90 backdrop-blur-lg md:hidden"
         style={{
           transform: `translateY(${-translateY}px)`,
           transition: dragging ? 'none' : 'transform 0.2s',
@@ -254,10 +196,9 @@ const Footer: React.FC = () => {
             key={i}
             to={to}
             className={({ isActive }) =>
-              `${
-                isActive
-                  ? 'text-[var(--color-brand-pink)]'
-                  : 'text-gray-700 dark:text-rose-100'
+              `${isActive
+                ? 'text-[var(--color-brand-pink)]'
+                : 'text-gray-700 dark:text-rose-100'
               }`
             }
           >
