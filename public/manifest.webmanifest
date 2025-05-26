@@ -1,7 +1,9 @@
 {
   "name": "TokTok - Deine SocialMedia App",
-  "short_name": "TokTok3",
+  "short_name": "TokTok",
   "start_url": "/",
+  "scope": "/",
+  "id": "/index.html",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#ffffff",
