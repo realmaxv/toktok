@@ -144,7 +144,7 @@ function FeedCard({
               }`}
             >
               <Heart
-                className={`w-7 h-7 transition-colors duration-300 ${
+                className={`w-7 h-7 cursor-pointer transition-colors duration-300 ${
                   liked
                     ? 'fill-[#ff4d67] text-[#ff4d67]'
                     : 'fill-none text-gray-600 dark:text-gray-400'

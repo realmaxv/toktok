@@ -1,8 +1,8 @@
 // src/components/BackButton.tsx
-import { memo } from "react";
-import type { FC } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { memo } from 'react';
+import type { FC } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 interface BackButtonProps {
   ariaLabel?: string;
@@ -10,7 +10,7 @@ interface BackButtonProps {
 }
 
 export const BackButton: FC<BackButtonProps> = memo(
-  ({ ariaLabel = "Zurück zur vorherigen Seite", onClick }) => {
+  ({ ariaLabel = 'Zurück zur vorherigen Seite', onClick }) => {
     const navigate = useNavigate();
 
     return (
@@ -19,7 +19,7 @@ export const BackButton: FC<BackButtonProps> = memo(
         aria-label={ariaLabel}
         title={ariaLabel}
       >
-        <ArrowLeft className="w-6 h-6 mr-1" />
+        <ArrowLeft className="w-6 h-6 mr-1 cursor-pointer" />
       </button>
     );
   }

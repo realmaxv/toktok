@@ -174,8 +174,64 @@ const Footer: React.FC = () => {
           >
             <Settings />
             <span>Settings</span>
-            <Logout />
           </NavLink>
+          <NavLink to="/about" className="flex items-center gap-3 p-4 text-lg">
+            About
+          </NavLink>
+
+          <NavLink
+            to="/privacy"
+            className="flex items-center gap-3 p-4 text-lg"
+          >
+            Privacy
+          </NavLink>
+          <div className="flex items-center gap-3 p-4 text-lg">
+            <Logout />
+          </div>
+          <div className="flex items-center gap-3 p-4 text-lg">
+            <p>Created by</p>
+            <p>Follow us on GitHub</p>
+          </div>
+          <div className="flex items-center gap-3 p-4 text-lg">
+            <a
+              href="https://github.com/TeamTokTok"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-pink"
+            ></a>
+            <a href="https://github.com/ninjagrrrl" target="_blank">
+              Jule
+              <img
+                src="https://github.com/ninjagrrrl.png"
+                alt=""
+                className="w-10 h-10 rounded-full"
+              />
+            </a>
+            <a href="https://github.com/realmaxv" target="_blank">
+              Max
+              <img
+                src="https://github.com/realmaxv.png"
+                alt=""
+                className="w-10 h-10 rounded-full"
+              />
+            </a>
+            <a href="https://github.com/HAO-317" target="_blank">
+              Hao
+              <img
+                src="https://github.com/HAO-317.png"
+                alt=""
+                className="w-10 h-10 rounded-full"
+              />
+            </a>
+            <a href="https://github.com/elmin-hasanov" target="_blank">
+              Elmin
+              <img
+                src="https://github.com/elmin-hasanov.png"
+                alt=""
+                className="w-10 h-10 rounded-full"
+              />
+            </a>
+          </div>
         </div>
       </section>
 
