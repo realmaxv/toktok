@@ -1,6 +1,6 @@
 /* @font-face */
 @font-face {
-  font-family: 'urbanist';
+  font-family: "urbanist";
   src: url(./assets/fonts/Urbanist/Urbanist-VariableFont_wght.ttf);
 }
 
@@ -10,4 +10,6 @@
   --color-brand-pink: #ff4d67;
   --color-button-pink: #e98090;
   --color-button-pink: #ecc7cd;
+  --color-button-pink-hover: #e98090;
+  --color-button-pink-active: #fa697f;
 }

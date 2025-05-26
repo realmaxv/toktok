@@ -125,7 +125,7 @@ export default function SignIn({
 
             <Button
               type="submit"
-              className="text-lg mt-2 h-13 w-full bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)]"
+              className="cursor-pointer text-lg mt-2 h-13 w-full bg-[var(--color-button-pink-active)] text-white hover:bg-[var(--color-brand-pink)] active:scale-95 active:bg-[var(--color-button-pink-dark)] transition-transform duration-100"
               disabled={isLoading}
             >
               {isLoading ? "Signing in..." : "Sign In"}
