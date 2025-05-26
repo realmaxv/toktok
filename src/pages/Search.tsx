@@ -132,13 +132,16 @@ export default function Search({
 
   const handleUserClick = (user_id: string) => {
     if (user_id === currentUserId) {
-      navigate("/profile");
+      console.log("Navigating to own profile:", user_id);
+      navigate("/profile/me");
     } else {
+      console.log("Navigating to profile of", user_id);
       navigate(`/profiles/${user_id}`);
     }
   };
 
   const handlePostClick = (postId: string) => {
+    console.log("Navigating to post", postId);
     navigate(`/comments/${postId}`);
   };
 
