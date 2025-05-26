@@ -1,9 +1,9 @@
-import Footer from "@/components/Footer";
-import ProfileDetailsHeader from "@/components/ProfileDetailsHeader";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { supabase } from "@/lib/supabase/client";
+import Footer from '@/components/Footer';
+import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { supabase } from '@/lib/supabase/client';
+import Header from '@/components/Header';
 
 export interface Profile {
   id: string;
@@ -33,7 +33,7 @@ export default function ProfileDetails() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState("/avatar-placeholder.png");
+  const [avatarUrl, setAvatarUrl] = useState('/avatar-placeholder.png');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,22 +41,22 @@ export default function ProfileDetails() {
       setCurrentUserId(sessionData.user?.id ?? null);
 
       const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", id ?? "")
+        .from('profiles')
+        .select('*')
+        .eq('id', id ?? '')
         .single();
 
       setProfile(profileData);
 
       const { count: followerCount } = await supabase
-        .from("followers")
-        .select("*", { count: "exact", head: true })
-        .eq("following_id", id ?? "");
+        .from('followers')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', id ?? '');
 
       const { count: followingCount } = await supabase
-        .from("followers")
-        .select("*", { count: "exact", head: true })
-        .eq("follower_id", id ?? "");
+        .from('followers')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', id ?? '');
 
       setProfile((prev) =>
         prev
@@ -69,33 +69,33 @@ export default function ProfileDetails() {
       );
 
       if (profileData?.avatar_url) {
-        const raw = profileData.avatar_url.replace(/^\/+/, "");
-        if (raw.startsWith("http")) {
+        const raw = profileData.avatar_url.replace(/^\/+/, '');
+        if (raw.startsWith('http')) {
           setAvatarUrl(raw);
         } else {
           const { data: urlData } = supabase.storage
-            .from("useruploads")
+            .from('useruploads')
             .getPublicUrl(raw);
-          setAvatarUrl(urlData?.publicUrl ?? "/avatar-placeholder.png");
+          setAvatarUrl(urlData?.publicUrl ?? '/avatar-placeholder.png');
         }
       }
 
       const { data: postData } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("user_id", id ?? "")
-        .order("created_at", { ascending: false });
+        .from('posts')
+        .select('*')
+        .eq('user_id', id ?? '')
+        .order('created_at', { ascending: false });
 
       const processedPosts = await Promise.all(
         (postData ?? []).map(async (p) => {
-          const rawPath = p.content_url?.replace(/^\/+/, "") ?? "";
-          if (rawPath.startsWith("http")) return { ...p, content_url: rawPath };
+          const rawPath = p.content_url?.replace(/^\/+/, '') ?? '';
+          if (rawPath.startsWith('http')) return { ...p, content_url: rawPath };
           const { data: imgData } = supabase.storage
-            .from("useruploads")
+            .from('useruploads')
             .getPublicUrl(rawPath);
           return {
             ...p,
-            content_url: imgData?.publicUrl ?? "/default-post.png",
+            content_url: imgData?.publicUrl ?? '/default-post.png',
           };
         })
       );
@@ -103,10 +103,10 @@ export default function ProfileDetails() {
 
       if (sessionData.user?.id && id && id !== sessionData.user.id) {
         const { data: followData } = await supabase
-          .from("followers")
-          .select("id")
-          .eq("follower_id", sessionData.user.id)
-          .eq("following_id", id ?? "")
+          .from('followers')
+          .select('id')
+          .eq('follower_id', sessionData.user.id)
+          .eq('following_id', id ?? '')
           .maybeSingle();
         setIsFollowing(!!followData);
       }
@@ -119,13 +119,13 @@ export default function ProfileDetails() {
     if (!currentUserId || !id) return;
     if (isFollowing) {
       await supabase
-        .from("followers")
+        .from('followers')
         .delete()
-        .eq("follower_id", currentUserId)
-        .eq("following_id", id ?? "");
+        .eq('follower_id', currentUserId)
+        .eq('following_id', id ?? '');
       setIsFollowing(false);
     } else {
-      await supabase.from("followers").insert({
+      await supabase.from('followers').insert({
         follower_id: currentUserId,
         following_id: id,
       });
@@ -135,9 +135,7 @@ export default function ProfileDetails() {
 
   return (
     <>
-      <ProfileDetailsHeader
-        nickname={profile?.nick_name || profile?.first_name || ""}
-      />
+      <Header />
       <div className="flex flex-col items-center px-6 py-8 min-h-[calc(100vh-120px)] overflow-y-auto pt-[72px] pb-[72px] text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-900">
         {profile && (
           <>
@@ -163,9 +161,9 @@ export default function ProfileDetails() {
               <button
                 onClick={handleFollow}
                 className="mt-4 px-4 py-2 rounded font-medium transition-colors text-white"
-                style={{ backgroundColor: "#ff4d67" }}
+                style={{ backgroundColor: '#ff4d67' }}
               >
-                {isFollowing ? "Entfolgen" : "Folgen"}
+                {isFollowing ? 'Entfolgen' : 'Folgen'}
               </button>
             )}
           </>

@@ -110,7 +110,7 @@ function FeedCard({
         gap-0 p-0
       "
     >
-      <article className="overflow-hidden flex flex-col">
+      <article className="relative flex flex-col">
         <div className="flex items-center p-4 space-x-4">
           <Link to={`/profile/${authorId}`}>
             <div
@@ -127,7 +127,7 @@ function FeedCard({
         </div>
 
         <div
-          className="relative w-full pb-[100%] bg-center bg-cover"
+          className="relative w-full pb-[120%] bg-center bg-cover"
           style={{ backgroundImage: `url(${imagePath})` }}
         />
 
@@ -144,7 +144,7 @@ function FeedCard({
               <Heart
                 className={`w-7 h-7 transition-colors duration-300 ${
                   liked
-                    ? 'fill-pink-500 text-pink-500'
+                    ? 'fill-[#ff4d67] text-[#ff4d67]'
                     : 'fill-none text-gray-600 dark:text-gray-400'
                 }`}
               />

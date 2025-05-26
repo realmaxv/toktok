@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import type { FormEvent } from "react";
-import { supabase } from "@/lib/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { BackButton } from "@/components/BackButton";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { nanoid } from "nanoid";
+import React, { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
+import { supabase } from '@/lib/supabase/client';
+import { useNavigate } from 'react-router-dom';
+import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { nanoid } from 'nanoid';
+import Header from '@/components/Header';
 
 interface ProfileData {
   first_name: string | null;
@@ -19,13 +19,13 @@ interface ProfileData {
 
 export default function ProfileEdit() {
   const [profile, setProfile] = useState<ProfileData>({
-    first_name: "",
-    last_name: "",
-    nick_name: "",
-    job_title: "",
-    website_url: "",
+    first_name: '',
+    last_name: '',
+    nick_name: '',
+    job_title: '',
+    website_url: '',
     avatar_url: null,
-    bio: "",
+    bio: '',
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,18 +39,18 @@ export default function ProfileEdit() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        navigate("/login");
+        navigate('/login');
         return;
       }
       const { data: profileData, error: fetchError } = await supabase
-        .from("profiles")
+        .from('profiles')
         .select(
-          "first_name,last_name,nick_name,job_title,website_url,avatar_url,profile_bio:bio"
+          'first_name,last_name,nick_name,job_title,website_url,avatar_url,profile_bio:bio'
         )
-        .eq("id", user.id)
+        .eq('id', user.id)
         .single();
       if (fetchError) {
-        console.error("Error loading profile:", fetchError.message);
+        console.error('Error loading profile:', fetchError.message);
         setLoading(false);
         return;
       }
@@ -81,14 +81,14 @@ export default function ProfileEdit() {
 
     // If user picked a new avatar, upload first
     if (avatarFile) {
-      const ext = avatarFile.name.split(".").pop();
+      const ext = avatarFile.name.split('.').pop();
       const fileName = `avatar_${nanoid()}.${ext}`;
       const filePath = `${user.id}/${fileName}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("useruploads")
-        .upload(filePath, avatarFile, { cacheControl: "3600" });
+        .from('useruploads')
+        .upload(filePath, avatarFile, { cacheControl: '3600' });
       if (uploadError) {
-        console.error("Avatar upload error", uploadError.message);
+        console.error('Avatar upload error', uploadError.message);
       } else if (uploadData?.path) {
         // Save the storage path; the public URL will be resolved when fetching the profile
         avatar_url = uploadData.path;
@@ -97,7 +97,7 @@ export default function ProfileEdit() {
 
     // Update profile record
     const { error: updateError } = await supabase
-      .from("profiles")
+      .from('profiles')
       .update({
         first_name: profile.first_name,
         last_name: profile.last_name,
@@ -107,12 +107,12 @@ export default function ProfileEdit() {
         avatar_url,
         bio: profile.bio,
       })
-      .eq("id", user.id);
+      .eq('id', user.id);
     if (updateError) {
-      console.error("Profile update error", updateError.message);
+      console.error('Profile update error', updateError.message);
     }
     setSaving(false);
-    navigate("/profile");
+    navigate('/profile');
   };
 
   if (loading) {
@@ -125,10 +125,7 @@ export default function ProfileEdit() {
 
   return (
     <div className="flex flex-col min-h-screen pt-16 pb-20">
-      <header className="fixed top-0 left-0 right-0 bg-white shadow z-50 px-4 py-3 flex items-center">
-        <BackButton />
-        <h2 className="ml-4 text-xl font-semibold">Edit Profile</h2>
-      </header>
+      <Header />
 
       <form
         onSubmit={handleSubmit}
@@ -140,11 +137,11 @@ export default function ProfileEdit() {
             src={
               avatarFile
                 ? URL.createObjectURL(avatarFile)
-                : profile.avatar_url && !profile.avatar_url.startsWith("http")
+                : profile.avatar_url && !profile.avatar_url.startsWith('http')
                 ? supabase.storage
-                    .from("useruploads")
+                    .from('useruploads')
                     .getPublicUrl(profile.avatar_url).data.publicUrl
-                : profile.avatar_url || "/default-avatar.png"
+                : profile.avatar_url || '/default-avatar.png'
             }
             alt="Avatar"
             className="w-32 h-32 rounded-full object-cover mb-2"
@@ -164,7 +161,7 @@ export default function ProfileEdit() {
             <input
               type="text"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.first_name || ""}
+              value={profile.first_name || ''}
               onChange={(e) =>
                 setProfile({ ...profile, first_name: e.target.value })
               }
@@ -175,7 +172,7 @@ export default function ProfileEdit() {
             <input
               type="text"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.last_name || ""}
+              value={profile.last_name || ''}
               onChange={(e) =>
                 setProfile({ ...profile, last_name: e.target.value })
               }
@@ -186,7 +183,7 @@ export default function ProfileEdit() {
             <input
               type="text"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.nick_name || ""}
+              value={profile.nick_name || ''}
               onChange={(e) =>
                 setProfile({ ...profile, nick_name: e.target.value })
               }
@@ -197,7 +194,7 @@ export default function ProfileEdit() {
             <input
               type="text"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.job_title || ""}
+              value={profile.job_title || ''}
               onChange={(e) =>
                 setProfile({ ...profile, job_title: e.target.value })
               }
@@ -208,7 +205,7 @@ export default function ProfileEdit() {
             <input
               type="url"
               className="mt-1 block w-full border rounded p-2"
-              value={profile.website_url || ""}
+              value={profile.website_url || ''}
               onChange={(e) =>
                 setProfile({ ...profile, website_url: e.target.value })
               }
@@ -219,7 +216,7 @@ export default function ProfileEdit() {
             <textarea
               className="mt-1 block w-full border rounded p-2"
               rows={4}
-              value={profile.bio || ""}
+              value={profile.bio || ''}
               onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
             />
           </div>
@@ -231,7 +228,7 @@ export default function ProfileEdit() {
           disabled={saving}
           className="w-full max-w-md py-3"
         >
-          {saving ? "Saving…" : "Save Changes"}
+          {saving ? 'Saving…' : 'Save Changes'}
         </Button>
       </form>
 
