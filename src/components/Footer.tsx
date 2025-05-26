@@ -135,7 +135,7 @@ const Footer: React.FC = () => {
                 `flex items-center gap-3 p-3 rounded-lg text-lg font-medium ${
                   isActive
                     ? 'bg-brand-pink/20 text-brand-pink'
-                    : 'text-stone-700'
+                    : 'text-stone-600 dark:text-stone-400 dark:hover:text-stone-500 hover:text-stone-500'
                 }`
               }
               onClick={() => setSidebarOpen(false)}
@@ -172,7 +172,7 @@ const Footer: React.FC = () => {
             to="/settings"
             className="flex items-center gap-3 p-4 text-lg"
           >
-            <Settings className="w-6 h-6 text-gray-500" />
+            <Settings />
             <span>Settings</span>
             <Logout />
           </NavLink>
@@ -185,7 +185,7 @@ const Footer: React.FC = () => {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        className="fixed bottom-0 w-full h-18 pt-0 flex items-center justify-around p-4 bg-white/80 dark:bg-stone-950/90 backdrop-blur-lg md:hidden"
+        className="fixed bottom-0 w-full h-18 pt-1 gap-10 flex items-center justify-around p-4 bg-white/80 dark:bg-stone-950/90 backdrop-blur-lg md:hidden"
         style={{
           transform: `translateY(${-translateY}px)`,
           transition: dragging ? 'none' : 'transform 0.2s',
