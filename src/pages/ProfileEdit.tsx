@@ -3,9 +3,10 @@ import type { FormEvent } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { nanoid } from 'nanoid';
-import Header from '@/components/Header';
+import { SquarePen } from 'lucide-react';
 
 interface ProfileData {
   first_name: string | null;
@@ -79,7 +80,7 @@ export default function ProfileEdit() {
     if (!user) return;
     let avatar_url = profile.avatar_url;
 
-    // If user picked a new avatar, upload first
+    // Wenn neuer Avatar gewählt, erst uploaden
     if (avatarFile) {
       const ext = avatarFile.name.split('.').pop();
       const fileName = `avatar_${nanoid()}.${ext}`;
@@ -90,12 +91,11 @@ export default function ProfileEdit() {
       if (uploadError) {
         console.error('Avatar upload error', uploadError.message);
       } else if (uploadData?.path) {
-        // Save the storage path; the public URL will be resolved when fetching the profile
         avatar_url = uploadData.path;
       }
     }
 
-    // Update profile record
+    // Profil aktualisieren
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
@@ -124,14 +124,14 @@ export default function ProfileEdit() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen pt-16 pb-20">
+    <div className="flex flex-col min-h-screen pt-9 pb-20">
       <Header />
 
       <form
         onSubmit={handleSubmit}
         className="mt-20 px-6 flex flex-col items-center space-y-6"
       >
-        {/* Avatar picker */}
+        {/* Avatar picker mit SquarePen */}
         <div className="relative">
           <img
             src={
@@ -147,11 +147,18 @@ export default function ProfileEdit() {
             className="w-32 h-32 rounded-full object-cover mb-2"
           />
           <input
+            id="avatarInput"
             type="file"
             accept="image/*"
             onChange={handleAvatarChange}
             className="absolute inset-0 opacity-0 cursor-pointer rounded-full"
           />
+          <label
+            htmlFor="avatarInput"
+            className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow cursor-pointer"
+          >
+            <SquarePen className="w-5 h-5 text-[var(--color-brand-pink)]" />
+          </label>
         </div>
 
         {/* Form fields */}
@@ -226,7 +233,7 @@ export default function ProfileEdit() {
         <Button
           type="submit"
           disabled={saving}
-          className="w-full max-w-md py-3"
+          className="w-full max-w-md py-3 bg-[var(--color-brand-pink)] text-white font-semibold rounded hover:bg-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving…' : 'Save Changes'}
         </Button>

@@ -1,17 +1,13 @@
-
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Search as SearchIcon } from 'lucide-react';
+import { Search as SearchIcon, User as UserIcon } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Spinner from '@/components/Spinner';
 
 type SearchMode = 'user' | 'post';
 
@@ -21,20 +17,17 @@ type UserResult = {
   avatar_url: string | null;
   first_name: string | null;
   last_name: string | null;
+  isFollowing: boolean;
 };
 
 type PostResult = {
   id: string;
   caption: string | null;
   content_url: string;
-  user_id: string;
   handle: string;
 };
 
-export default function Search({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<'div'>) {
+export default function Search() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>('user');
   const [userResults, setUserResults] = useState<UserResult[]>([]);
@@ -44,302 +37,280 @@ export default function Search({
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  // Aktuellen User holen
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-      if (error) {
-        console.error('Error fetching current user:', error);
-      } else {
-        setCurrentUserId(user?.id ?? null);
-      }
-    };
-    fetchCurrentUser();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setCurrentUserId(user?.id ?? null);
+    });
   }, []);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Debounced Auto-Suche bei >= 2 Zeichen
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      setUserResults([]);
+      setPostResults([]);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
     setError(null);
     setIsLoading(true);
+    const timer = setTimeout(() => {
+      performSearch();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchMode]);
 
+  // Follow-Status nachladen
+  const fetchFollowStatus = async (
+    profiles: Omit<UserResult, 'isFollowing'>[]
+  ) => {
+    if (!currentUserId)
+      return profiles.map((p) => ({ ...p, isFollowing: false }));
+    const { data: follows } = await supabase
+      .from('followers')
+      .select('following_id')
+      .eq('follower_id', currentUserId)
+      .in(
+        'following_id',
+        profiles.map((p) => p.user_id)
+      );
+    const followingSet = new Set(follows?.map((f) => f.following_id));
+    return profiles.map((p) => ({
+      ...p,
+      isFollowing: followingSet.has(p.user_id),
+    }));
+  };
+
+  // Kern-Suchfunktion
+  const performSearch = async () => {
     try {
       if (searchMode === 'user') {
         const { data, error } = await supabase
           .from('profiles')
-          .select(
-            `
-            id,
-            avatar_url,
-            first_name,
-            last_name,
-            nick_name
-          `
-          )
+          .select(`id, avatar_url, first_name, last_name, nick_name`)
           .or(
             `nick_name.ilike.%${searchQuery}%,first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`
           );
-
         if (error) throw error;
-        setUserResults(
-          (data?.map((item) => ({
-            user_id: item.id,
-            handle: item.nick_name || '',
-            avatar_url: item.avatar_url,
-            first_name: item.first_name ?? null,
-            last_name: item.last_name ?? null,
-          })) as UserResult[]) || []
-        );
-        setPostResults([]);
+
+        const base = (data ?? []).map((item) => ({
+          user_id: item.id,
+          handle: item.nick_name || '',
+          avatar_url: item.avatar_url,
+          first_name: item.first_name,
+          last_name: item.last_name,
+        }));
+        const withFollow = await fetchFollowStatus(base);
+        setUserResults(withFollow);
       } else {
         const { data, error } = await supabase
           .from('posts')
-          .select(
-            `
-            id,
-            caption,
-            user_id,
-            content_url,
-            profiles (
-              first_name,
-              last_name,
-              nick_name
-            )
-          `
-          )
+          .select(`id, caption, content_url, profiles(nick_name)`)
           .ilike('caption', `%${searchQuery}%`);
-
         if (error) throw error;
+
         setPostResults(
-          (data?.map((item) => ({
-            id: item.id,
-            caption: item.caption,
-            user_id: item.user_id,
-            content_url: item.content_url,
-            handle: item.profiles?.nick_name || '',
-          })) as PostResult[]) || []
+          (data ?? []).map((p) => ({
+            id: p.id,
+            caption: p.caption,
+            content_url: p.content_url.startsWith('http')
+              ? p.content_url
+              : supabase.storage.from('useruploads').getPublicUrl(p.content_url)
+                  .data.publicUrl,
+            handle: p.profiles?.nick_name || '',
+          }))
         );
-        setUserResults([]);
       }
-    } catch (error: unknown) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : 'An error occurred during search'
-      );
-      console.log('Search failed:', error);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Fehler bei der Suche');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleUserClick = (user_id: string) => {
-    if (user_id === currentUserId) {
-      console.log('Navigating to own profile:', user_id);
-      navigate('/profile/me');
+  // Follow/Unfollow
+  const handleFollowToggle = async (
+    user_id: string,
+    currentlyFollowing: boolean
+  ) => {
+    if (!currentUserId) return;
+    if (currentlyFollowing) {
+      await supabase
+        .from('followers')
+        .delete()
+        .eq('follower_id', currentUserId)
+        .eq('following_id', user_id);
     } else {
-      console.log('Navigating to profile of', user_id);
-      navigate(`/profile/${user_id}`);
+      await supabase
+        .from('followers')
+        .insert({ follower_id: currentUserId, following_id: user_id });
     }
+    setUserResults((prev) =>
+      prev.map((u) =>
+        u.user_id === user_id ? { ...u, isFollowing: !currentlyFollowing } : u
+      )
+    );
   };
 
-  const handlePostClick = (postId: string) => {
-    console.log('Navigating to post', postId);
-    navigate(`/comments/${postId}`);
+  const handleUserClick = (user_id: string) => {
+    navigate(user_id === currentUserId ? '/profile/me' : `/profile/${user_id}`);
   };
-
-  const imagePlaceholder = (
-    <div className="w-16 h-16 bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 rounded-md">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9 6 9-6"
-        />
-      </svg>
-    </div>
-  );
+  const handlePostClick = (postId: string) => navigate(`/comments/${postId}`);
 
   return (
-
     <>
       <Header />
-      <div
-        className={cn(
-          'min-h-screen flex items-center justify-center p-4 bg-stone-200 dark:bg-stone-950',
-          className
-        )}
-        {...props}
-      >
-        <Card className="w-full max-w-md flex flex-col border-none shadow-none bg-stone-200 dark:bg-stone-950">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-3xl p-4">Search</CardTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/home')}
-              aria-label="Back to home"
+      <main className="w-full pt-22 pb-15">
+        <div className="w-full max-w-3xl mx-auto px-4">
+          {/* Search Input */}
+          <div className="relative mb-4">
+            <SearchIcon className="absolute inset-y-0 left-3 my-auto w-5 h-5 text-gray-400" />
+            <Input
+              type="text"
+              placeholder={
+                searchMode === 'user' ? 'Search users...' : 'Search posts...'
+              }
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full rounded-full border border-gray-300"
+            />
+          </div>
+
+          {/* Tab-Nav */}
+          <div className="flex mb-2">
+            <button
+              onClick={() => setSearchMode('user')}
+              className={cn(
+                'flex-1 py-3 text-center',
+                searchMode === 'user'
+                  ? 'border-b-2 border-[#FF4D67] text-[#FF4D67]'
+                  : 'text-gray-500'
+              )}
             >
-              <ArrowLeft className="h-6 w-6" />
-            </Button>
-          </CardHeader>
-          {/* <div className="flex items-center justify-center p-4">
+              <UserIcon className="inline w-5 h-5 mr-1" /> Users
+            </button>
+            <button
+              onClick={() => setSearchMode('post')}
+              className={cn(
+                'flex-1 py-3 text-center',
+                searchMode === 'post'
+                  ? 'border-b-2 border-[#FF4D67] text-[#FF4D67]'
+                  : 'text-gray-500'
+              )}
+            >
+              Posts
+            </button>
+          </div>
 
-          <img src={logo} alt="TokTok Logo" className="w-[25px] h-[25px]" />
-        </div> */}
-          <CardContent>
-            <form onSubmit={handleSearch} className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="search">Search</Label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <SearchIcon className="w-4 h-4 text-muted-foreground" />
-                  </span>
-                  <Input
-                    id="search"
-                    type="text"
-                    placeholder={
-                      searchMode === 'user'
-                        ? 'Search by username or name'
-                        : 'Search by post content'
-                    }
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-13"
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
+          {/* Error */}
+          {error && <p className="px-4 text-red-500">{error}</p>}
 
-              <div className="flex gap-4">
-                <Button
-                  type="button"
-                  variant={searchMode === 'user' ? 'default' : 'outline'}
-                  onClick={() => setSearchMode('user')}
-                >
-                  Username/Name
-                </Button>
-                <Button
-                  type="button"
-                  variant={searchMode === 'post' ? 'default' : 'outline'}
-                  onClick={() => setSearchMode('post')}
-                >
-                  Post
-                </Button>
-              </div>
+          {/* Loading Spinner */}
+          {isLoading && (
+            <div className="flex justify-center py-4">
+              <Spinner />
+            </div>
+          )}
 
-              <Button
-                type="submit"
-                className="text-lg mt-2 h-13 w-full bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)]"
-                disabled={isLoading || !searchQuery}
-              >
-                {isLoading ? 'Searching...' : 'Search'}
-              </Button>
-
-              {error && <p className="text-sm text-red-500">{error}</p>}
-
-              {searchMode === 'user' && userResults.length > 0 && (
-                <ul className="mt-4 space-y-4">
-                  {userResults.map((user) => (
-                    <li
-                      key={user.user_id}
-                      className="flex items-center gap-4 cursor-pointer hover:bg-stone-300 dark:hover:bg-stone-800 p-2 rounded-md"
-                      onClick={() => handleUserClick(user.user_id)}
+          {/* Ergebnisse */}
+          {!isLoading && searchMode === 'user' && (
+            <ul className="space-y-2">
+              {userResults.length > 0 ? (
+                userResults.map((u) => (
+                  <li
+                    key={u.user_id}
+                    className="flex items-center justify-between rounded-lg p-4 hover:shadow"
+                  >
+                    <div
+                      className="flex items-center gap-3 cursor-pointer"
+                      onClick={() => handleUserClick(u.user_id)}
                     >
                       <img
                         src={
-                          user.avatar_url && !user.avatar_url.startsWith('http')
+                          u.avatar_url && !u.avatar_url.startsWith('http')
                             ? supabase.storage
                                 .from('useruploads')
-                                .getPublicUrl(user.avatar_url).data.publicUrl
-                            : user.avatar_url || '/avatar-placeholder.png'
+                                .getPublicUrl(u.avatar_url).data.publicUrl
+                            : u.avatar_url || '/avatar-placeholder.png'
                         }
-                        alt={`${user.handle} avatar`}
-                        className="w-10 h-10 rounded-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = '/avatar-placeholder.png';
-                        }}
+                        alt=""
+                        className="w-12 h-12 rounded-full object-cover"
+                        onError={(e) =>
+                          (e.currentTarget.src = '/avatar-placeholder.png')
+                        }
                       />
                       <div>
-                        <p className="font-semibold">
-                          {user.first_name || user.last_name
-                            ? `${user.first_name || ''} ${
-                                user.last_name || ''
+                        <p className="font-medium">
+                          {u.first_name || u.last_name
+                            ? `${u.first_name || ''} ${
+                                u.last_name || ''
                               }`.trim()
-                            : user.handle}
+                            : u.handle}
                         </p>
-                        {user.first_name || user.last_name ? (
-                          <p className="text-sm text-muted-foreground">
-                            @{user.handle}
-                          </p>
-                        ) : null}
+                        <p className="text-sm text-gray-500">@{u.handle}</p>
                       </div>
-                    </li>
-                  ))}
-                </ul>
+                    </div>
+                    {currentUserId !== u.user_id && (
+                      <Button
+                        size="sm"
+                        className={cn(
+                          'px-4 py-1 rounded',
+                          u.isFollowing
+                            ? 'bg-[#FF4D67] text-white border border-[#FF4D67]'
+                            : 'bg-white text-[#FF4D67] border border-[#FF4D67]'
+                        )}
+                        onClick={() =>
+                          handleFollowToggle(u.user_id, u.isFollowing)
+                        }
+                      >
+                        {u.isFollowing ? 'Gefolgt' : 'Folgen'}
+                      </Button>
+                    )}
+                  </li>
+                ))
+              ) : (
+                <p className="px-4 text-gray-500">Keine Nutzer gefunden.</p>
               )}
+            </ul>
+          )}
 
-              {searchMode === 'post' && postResults.length > 0 && (
-                <ul className="mt-4 space-y-4">
-                  {postResults.map((post) => (
-                    <li
-                      key={post.id}
-                      className="flex items-center gap-4 cursor-pointer hover:bg-stone-300 dark:hover:bg-stone-800 p-2 rounded-md"
-                      onClick={() => handlePostClick(post.id)}
-                    >
-                      {post.content_url ? (
-                        <img
-                          src={post.content_url}
-                          alt="Post preview"
-                          className="w-16 h-16 rounded-md object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/image-placeholder.png';
-                          }}
-                        />
-                      ) : (
-                        imagePlaceholder
-                      )}
-                      <div>
-                        <p className="font-semibold">
-                          {post.caption || '(No caption)'}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          by @{post.handle}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+          {!isLoading && searchMode === 'post' && (
+            <ul className="space-y-2 px-4">
+              {postResults.length > 0 ? (
+                postResults.map((p) => (
+                  <li
+                    key={p.id}
+                    onClick={() => handlePostClick(p.id)}
+                    className="flex items-center gap-3 rounded-lg p-4 hover:shadow cursor-pointer"
+                  >
+                    <img
+                      src={p.content_url}
+                      alt=""
+                      className="w-16 h-16 rounded-md object-cover"
+                      onError={(e) =>
+                        (e.currentTarget.src = '/image-placeholder.png')
+                      }
+                    />
+                    <div>
+                      <p className="font-medium">
+                        {p.caption || '(No caption)'}
+                      </p>
+                      <p className="text-sm text-gray-500">@{p.handle}</p>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <p className="text-gray-500">Keine Posts gefunden.</p>
               )}
-
-              {searchMode === 'user' &&
-                userResults.length === 0 &&
-                !isLoading &&
-                searchQuery && (
-                  <p className="text-sm text-muted-foreground">
-                    No users found.
-                  </p>
-                )}
-              {searchMode === 'post' &&
-                postResults.length === 0 &&
-                !isLoading &&
-                searchQuery && (
-                  <p className="text-sm text-muted-foreground">
-                    No posts found.
-                  </p>
-                )}
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+            </ul>
+          )}
+        </div>
+      </main>
       <Footer />
     </>
   );

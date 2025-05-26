@@ -75,10 +75,10 @@ function Header() {
       {isProfilePage ? (
         <div className="flex items-center justify-center">
           <NavLink to="/profile-edit">
-            <UserRoundPen className="w-6 h-6" />
+            <UserRoundPen className="w-8 h-8" />
           </NavLink>
           <NavLink to="/settings">
-            <Settings className="w-6 h-6 ml-4" />
+            <Settings className="w-8 h-8 ml-4" />
           </NavLink>
         </div>
       ) : (
@@ -86,7 +86,7 @@ function Header() {
           <img
             src={avatarUrl || '/default-avatar.png'}
             alt="Avatar"
-            className="w-6 h-6 rounded-full object-cover"
+            className="w-8 h-8 rounded-full object-cover"
           />
         </NavLink>
       )}
