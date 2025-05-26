@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase/client";
-import { Link, useNavigate } from "react-router-dom";
-import Footer from "@/components/Footer";
-import ProfileHeader from "@/components/ProfileHeader";
-import { SquarePen } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase/client';
+import { Link, useNavigate } from 'react-router-dom';
+import Footer from '@/components/Footer';
+import { SquarePen } from 'lucide-react';
+import Header from '@/components/Header';
 
 interface ProfileData {
   id: string;
@@ -35,37 +35,37 @@ export default function Profile() {
       const user = await supabase.auth.getUser();
       const userId = user.data.user?.id;
       if (!userId) {
-        navigate("/login");
+        navigate('/login');
         return;
       }
       const { count: fetchedFollowerCount } = await supabase
-        .from("followers")
-        .select("*", { count: "exact", head: true })
-        .eq("following_id", userId ?? "");
+        .from('followers')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', userId ?? '');
 
       const { count: fetchedFollowingCount } = await supabase
-        .from("followers")
-        .select("*", { count: "exact", head: true })
-        .eq("follower_id", userId ?? "");
+        .from('followers')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', userId ?? '');
 
       setFollowerCount(fetchedFollowerCount ?? 0);
       setFollowingCount(fetchedFollowingCount ?? 0);
       const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
         .single();
 
-      let avatarUrl = "/default-avatar.png";
+      let avatarUrl = '/default-avatar.png';
       if (profileData?.avatar_url) {
-        const raw = profileData.avatar_url.replace(/^\/+/, "");
-        if (raw.startsWith("http")) {
+        const raw = profileData.avatar_url.replace(/^\/+/, '');
+        if (raw.startsWith('http')) {
           avatarUrl = raw;
         } else {
           const { data: urlData } = supabase.storage
-            .from("useruploads")
+            .from('useruploads')
             .getPublicUrl(raw);
-          avatarUrl = urlData?.publicUrl ?? "/default-avatar.png";
+          avatarUrl = urlData?.publicUrl ?? '/default-avatar.png';
         }
       }
       if (profileData) {
@@ -74,22 +74,22 @@ export default function Profile() {
 
       // Fetch last 3 posts
       const { data: postData } = await supabase
-        .from("posts")
-        .select("id, content_url")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
+        .from('posts')
+        .select('id, content_url')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
       // Post-Bilder auflösen
       const processedPosts = (postData || []).map((p) => {
-        let imageUrl = "/default-post.png";
+        let imageUrl = '/default-post.png';
         if (p.content_url) {
-          const rawPath = p.content_url.replace(/^\/+/, "");
-          if (rawPath.startsWith("http")) {
+          const rawPath = p.content_url.replace(/^\/+/, '');
+          if (rawPath.startsWith('http')) {
             imageUrl = rawPath;
           } else {
             const { data: imgData } = supabase.storage
-              .from("useruploads")
+              .from('useruploads')
               .getPublicUrl(rawPath);
-            imageUrl = imgData?.publicUrl ?? "/default-post.png";
+            imageUrl = imgData?.publicUrl ?? '/default-post.png';
           }
         }
         return { ...p, content_url: imageUrl };
@@ -113,18 +113,17 @@ export default function Profile() {
     return <p className="text-center mt-20">Profile nicht gefunden.</p>;
   }
 
-  const fullName = `${profile.first_name ?? ""} ${
-    profile.last_name ?? ""
+  const fullName = `${profile.first_name ?? ''} ${
+    profile.last_name ?? ''
   }`.trim();
 
   return (
     <div className="flex flex-col min-h-screen pt-20 pb-20">
-      <ProfileHeader />
-
+      <Header />
       <div className="flex flex-col items-center text-center px-6 py-8 ">
         <div className="relative">
           <img
-            src={profile.avatar_url || "/default-avatar.png"}
+            src={profile.avatar_url || '/default-avatar.png'}
             alt="Avatar"
             className="w-32 h-32 rounded-full object-cover"
           />
@@ -145,7 +144,7 @@ export default function Profile() {
         <p className="mt-3 text-gray-700 dark:text-gray-300 max-w-md whitespace-pre-wrap">
           {profile.bio
             ? profile.bio
-            : "Hier steht deine Bio. Bearbeite dein Profil, um sie zu ändern."}
+            : 'Hier steht deine Bio. Bearbeite dein Profil, um sie zu ändern.'}
         </p>
         {profile.website_url && (
           <a

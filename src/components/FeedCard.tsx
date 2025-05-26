@@ -110,7 +110,9 @@ function FeedCard({
         gap-0 p-0
       "
     >
-      <article className="overflow-hidden flex flex-col bg-stone-200 dark:bg-stone-950 hover:bg-stone-300 dark:hover:bg-stone-900 active:bg-stone-300 dark:active:bg-stone-900">
+
+      <article className="relative flex flex-col">
+
         <div className="flex items-center p-4 space-x-4">
           <Link to={`/profile/${authorId}`}>
             <div
@@ -126,12 +128,12 @@ function FeedCard({
           </div>
         </div>
 
-        <Link to={`/comments/${id}`}>
-          <div
-            className="relative w-full pb-[100%] bg-center bg-cover hover:opacity-80 transition-opacity"
-            style={{ backgroundImage: `url(${imagePath})` }}
-          />
-        </Link>
+
+        <div
+          className="relative w-full pb-[120%] bg-center bg-cover"
+          style={{ backgroundImage: `url(${imagePath})` }}
+        />
+
 
         <div className="p-4 flex flex-col space-y-4">
           <p className="text-base leading-snug">{caption}</p>
@@ -146,7 +148,7 @@ function FeedCard({
               <Heart
                 className={`w-7 h-7 transition-colors duration-300 ${
                   liked
-                    ? 'fill-pink-500 text-pink-500'
+                    ? 'fill-[#ff4d67] text-[#ff4d67]'
                     : 'fill-none text-gray-600 dark:text-gray-400'
                 }`}
               />
