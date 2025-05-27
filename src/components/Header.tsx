@@ -82,7 +82,7 @@ function Header() {
           </NavLink>
         </div>
       ) : (
-        <NavLink to={userId ? `/profile/${userId}` : '/login'}>
+        <NavLink to={userId ? `/profile` : '/login'}>
           <img
             src={avatarUrl || '/avatar_placeholder.png'}
             alt="Avatar"
