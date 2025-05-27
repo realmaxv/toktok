@@ -11,20 +11,20 @@ export function HomeFeed() {
   const handleShuffleClick = () => {
     const confirmed = window.confirm("Switch to Shuffle mode?");
     if (confirmed) {
-      navigate('/shuffle');
+      navigate("/shuffle");
     }
   };
 
   return (
     <main className="overflow-x-hidden">
-      <Header>
-        <Button
-          onClick={handleShuffleClick}
-          className="bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)] ml-2"
-        >
-          Shuffle
-        </Button>
-      </Header>
+      <Header />
+      <Button
+        onClick={handleShuffleClick}
+        className="bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)] ml-2"
+      >
+        Shuffle
+      </Button>
+
       <FeedList />
       <Footer />
     </main>
