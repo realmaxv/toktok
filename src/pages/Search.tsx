@@ -268,13 +268,13 @@ export default function Search() {
                           handleFollowToggle(u.user_id, u.isFollowing)
                         }
                       >
-                        {u.isFollowing ? 'Gefolgt' : 'Folgen'}
+                        {u.isFollowing ? 'Unfollow' : 'Follow'}
                       </Button>
                     )}
                   </li>
                 ))
               ) : (
-                <p className="px-4 text-gray-500">Keine Nutzer gefunden.</p>
+                <p className="px-4 text-gray-500">No users found.</p>
               )}
             </ul>
           )}
@@ -305,7 +305,7 @@ export default function Search() {
                   </li>
                 ))
               ) : (
-                <p className="text-gray-500">Keine Posts gefunden.</p>
+                <p className="text-gray-500">No posts found.</p>
               )}
             </ul>
           )}

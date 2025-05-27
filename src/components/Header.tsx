@@ -84,7 +84,7 @@ function Header() {
       ) : (
         <NavLink to={userId ? `/profile/${userId}` : '/login'}>
           <img
-            src={avatarUrl || '/default-avatar.png'}
+            src={avatarUrl || '/avatar_placeholder.png'}
             alt="Avatar"
             className="w-8 h-8 rounded-full object-cover"
           />
