@@ -1,4 +1,3 @@
-// src/App.tsx
 import { useState, useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { AuthContextProvider, useAuthContext } from "./contexts/auth-context";
@@ -16,6 +15,7 @@ import ProfileDetails from "./pages/ProfileDetails";
 import ProfileEdit from "./pages/ProfileEdit";
 import Settings from "./pages/Settings";
 import RootLayout from "./layouts/RootLayout";
+import Shuffle from "./pages/Shuffle"; // 
 
 const SPLASH_DURATION = 1300; // lade animations dauer 1.3 Sekunden
 
@@ -69,6 +69,7 @@ function InnerApp() {
         { path: "/profile-detail", Component: ProfileDetails },
         { path: "/profile-edit", Component: ProfileEdit },
         { path: "/settings", Component: Settings },
+        { path: "/shuffle", Component: Shuffle }, // 
         { path: "*", Component: HomeFeed },
       ],
     },

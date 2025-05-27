@@ -158,11 +158,13 @@ export default function CreateNewPost({
         )}
         {...props}
       >
+
         <Card className="w-full max-w-md bg-transparent gap-0 p-1 mt-0">
           <CardHeader className="flex justify-center items-center">
             <Label htmlFor="caption" className="text-2xl pt-2">
               What's New?
             </Label>
+
           </CardHeader>
           <CardContent className="p-4 pt-1 space-y-3">
             {/* Bild-Upload */}
