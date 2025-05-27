@@ -52,11 +52,11 @@ export default function Comments({
   const navigate = useNavigate();
   const { session } = useAuthContext();
 
-  // Funktion zum Löschen des Posts
+  // Function to delete the post
   const handleDeletePost = async () => {
     if (!post?.id) return;
     const confirmed = window.confirm(
-      'Möchtest du diesen Beitrag wirklich löschen?'
+      'Are you sure you want to delete this post?'
     );
     if (!confirmed) return;
     try {
@@ -64,8 +64,8 @@ export default function Comments({
       if (error) throw error;
       navigate('/');
     } catch (err) {
-      console.error('Fehler beim Löschen des Beitrags:', err);
-      setError('Beitrag konnte nicht gelöscht werden.');
+      console.error('Error deleting post:', err);
+      setError('Could not delete post.');
     }
   };
 
@@ -213,7 +213,7 @@ export default function Comments({
       return;
     }
     if (!id) {
-      setError('Post-ID fehlt.');
+      setError('Post ID is missing.');
       return;
     }
     if ((!caption || caption.trim() === '') && !imageFile) {
@@ -312,10 +312,13 @@ export default function Comments({
     <>
       <Header />
       <div
-        className={cn('min-h-screen flex flex-col p-0 pt-16 pb-20', className)}
+        className={cn(
+          'min-h-screen flex flex-col p-0 pt-16 pb-20 mx-auto w-full items-center',
+          className
+        )}
         {...props}
       >
-        <Card className="w-full max-w-md flex flex-col border-none shadow-none  dark:bg-stone-950">
+        <Card className=" w-full max-w-md flex flex-col border-none shadow-none  dark:bg-stone-950">
           <CardContent>
             {isLoading ? (
               <div className="flex items-center justify-center h-screen">
@@ -426,7 +429,7 @@ export default function Comments({
                     <img
                       src={post.content_url}
                       alt="Post content"
-                      className="w-full object-cover"
+                      className="w-full h-auto rounded-lg object-cover max-h-96 max-w-full mx-auto"
                     />
                   )}
                   <p className="text-sm">{post.caption || 'No caption'}</p>
@@ -438,15 +441,15 @@ export default function Comments({
                     onClick={handleDeletePost}
                     className="w-fit self-end"
                   >
-                    Beitrag löschen
+                    Delete post
                   </Button>
                 )}
-                {/* Kommentare unter dem Post */}
+                {/* Comments under the post */}
                 <div className="flex flex-col gap-4 mt-4">
-                  <h3 className="text-sm font-bold">Kommentare</h3>
+                  <h3 className="text-sm font-bold">Comments</h3>
                   {comments.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                      Noch keine Kommentare.
+                      No comments yet.
                     </p>
                   ) : (
                     comments.map((comment) => (
@@ -466,7 +469,7 @@ export default function Comments({
                               ? `${comment.profiles?.first_name || ''} ${
                                   comment.profiles?.last_name || ''
                                 }`
-                              : 'Unbekannt'}
+                              : 'Unknown'}
                             <span className="ml-2 text-muted-foreground text-xs">
                               @{comment.profiles?.nick_name || 'user'}
                             </span>
@@ -500,7 +503,7 @@ export default function Comments({
                                     }
                                   }}
                                 >
-                                  Speichern
+                                  Save
                                 </Button>
                                 <Button
                                   size="sm"
@@ -519,7 +522,7 @@ export default function Comments({
                                     }
                                   }}
                                 >
-                                  Löschen
+                                  Delete
                                 </Button>
                                 <Button
                                   size="sm"
@@ -527,7 +530,7 @@ export default function Comments({
                                   className="px-1.5 py-0.5 text-xs"
                                   onClick={() => setEditingCommentId(null)}
                                 >
-                                  Abbrechen
+                                  Cancel
                                 </Button>
                               </div>
                             </>
@@ -544,59 +547,10 @@ export default function Comments({
                                           setEditContent(comment.content))
                                     }
                                     className="text-muted-foreground hover:text-foreground"
-                                    aria-label="Kommentar bearbeiten"
+                                    aria-label="Edit comment"
                                   >
                                     <UserRoundPen className="w-4 h-4" />
                                   </button>
-                                  {editingCommentId === comment.id && (
-                                    <div className="flex gap-2">
-                                      <Button
-                                        size="sm"
-                                        className="px-1.5 py-0.5 text-xs"
-                                        onClick={async () => {
-                                          const { error } = await supabase
-                                            .from('comments')
-                                            .update({ content: editContent })
-                                            .eq('id', comment.id);
-                                          if (!error) {
-                                            setComments((prev) =>
-                                              prev.map((c) =>
-                                                c.id === comment.id
-                                                  ? {
-                                                      ...c,
-                                                      content: editContent,
-                                                    }
-                                                  : c
-                                              )
-                                            );
-                                            setEditingCommentId(null);
-                                          }
-                                        }}
-                                      >
-                                        Speichern
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="destructive"
-                                        className="px-1.5 py-0.5 text-xs"
-                                        onClick={async () => {
-                                          const { error } = await supabase
-                                            .from('comments')
-                                            .delete()
-                                            .eq('id', comment.id);
-                                          if (!error) {
-                                            setComments((prev) =>
-                                              prev.filter(
-                                                (c) => c.id !== comment.id
-                                              )
-                                            );
-                                          }
-                                        }}
-                                      >
-                                        Löschen
-                                      </Button>
-                                    </div>
-                                  )}
                                 </div>
                               )}
                             </>
@@ -610,7 +564,7 @@ export default function Comments({
                   )}
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="comment">Schreibe einen Kommentar</Label>
+                  <Label htmlFor="comment">Write a comment</Label>
                   <Textarea
                     id="comment"
                     placeholder="What's on your mind?"

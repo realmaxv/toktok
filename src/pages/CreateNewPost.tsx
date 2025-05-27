@@ -7,26 +7,26 @@ type Post = {
   updated_at: string;
 };
 
-import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase/client";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { useAuthContext } from "@/contexts/auth-context";
-import { nanoid } from "nanoid";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
+import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase/client';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { useAuthContext } from '@/contexts/auth-context';
+import { nanoid } from 'nanoid';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 
-const BUCKET_NAME = "useruploads";
+const BUCKET_NAME = 'useruploads';
 
 export default function CreateNewPost({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
-  const [caption, setCaption] = useState("");
+}: React.ComponentPropsWithoutRef<'div'>) {
+  const [caption, setCaption] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,25 +56,25 @@ export default function CreateNewPost({
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
     if (!session?.user?.id) {
-      setError("You must be logged in to upload an image.");
+      setError('You must be logged in to upload an image.');
       return null;
     }
 
     const userId = session.user.id;
-    const fileExt = file.name.split(".").pop();
+    const fileExt = file.name.split('.').pop();
     const uniqueName = `${Date.now()}_${nanoid()}.${fileExt}`;
     const filePath = `${userId}/${uniqueName}`;
 
     const { error: uploadError } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(filePath, file, {
-        cacheControl: "3600",
+        cacheControl: '3600',
         contentType: file.type,
         metadata: { user_id: userId },
       });
 
     if (uploadError) {
-      console.error("Upload Error:", uploadError);
+      console.error('Upload Error:', uploadError);
       setError(`Upload failed: ${uploadError.message}`);
       return null;
     }
@@ -88,27 +88,27 @@ export default function CreateNewPost({
 
   const handleSubmit = async () => {
     if (!session?.user?.id) {
-      setError("Du musst eingeloggt sein.");
+      setError('Du musst eingeloggt sein.');
       return;
     }
 
     if (!imageFile) {
-      setError("Bitte füge ein Bild hinzu.");
+      setError('Bitte füge ein Bild hinzu.');
       return;
     }
 
-    if (!window.confirm("Post erstellen?")) return;
+    if (!window.confirm('Post erstellen?')) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
       const contentUrl = await handleImageUpload(imageFile);
-      if (!contentUrl) throw new Error("Image upload failed");
+      if (!contentUrl) throw new Error('Image upload failed');
 
       const now = new Date().toISOString();
       const { data: insertResult, error: insertError } = await supabase
-        .from("posts")
+        .from('posts')
         .insert({
           caption: caption || null,
           content_url: contentUrl,
@@ -122,22 +122,22 @@ export default function CreateNewPost({
       if (insertError) throw insertError;
 
       // optional Like setzen
-      const { error: likeError } = await supabase.from("post_likes").insert({
+      const { error: likeError } = await supabase.from('post_likes').insert({
         post_id: insertResult?.[0]?.id,
         user_id: session.user.id,
       });
       if (likeError) {
         console.warn(
-          "Post erstellt, aber Like konnte nicht gesetzt werden:",
+          'Post erstellt, aber Like konnte nicht gesetzt werden:',
           likeError
         );
       }
 
-      navigate("/home");
+      navigate('/home');
     } catch (err: unknown) {
-      console.error("Post creation error:", err);
+      console.error('Post creation error:', err);
       setError(
-        err instanceof Error ? err.message : "Fehler beim Erstellen des Posts"
+        err instanceof Error ? err.message : 'Fehler beim Erstellen des Posts'
       );
     } finally {
       setIsLoading(false);
@@ -145,7 +145,7 @@ export default function CreateNewPost({
   };
 
   const handleCancel = () => {
-    if (window.confirm("Cancel? Unsaved changes lost.")) navigate("/home");
+    if (window.confirm('Cancel? Unsaved changes lost.')) navigate('/home');
   };
 
   return (
@@ -153,25 +153,23 @@ export default function CreateNewPost({
       <Header />
       <div
         className={cn(
-          "min-h-screen flex items-center justify-center p-4 bg-stone-200 dark:bg-stone-950",
+          'min-h-screen flex items-center justify-center pt-10',
           className
         )}
         {...props}
       >
-
-        <Card className="w-full max-w-md bg-transparent gap-0 p-1 mt-0">
+        <Card className="w-full max-w-md  gap-0 p-1 mt-0 border-0 shadow-none dark:bg-black/80">
           <CardHeader className="flex justify-center items-center">
             <Label htmlFor="caption" className="text-2xl pt-2">
               What's New?
             </Label>
-
           </CardHeader>
           <CardContent className="p-4 pt-1 space-y-3">
             {/* Bild-Upload */}
             <div className="space-y-2 ">
               <div
                 className="w-full aspect-square rounded-md border border-input shadow-xs flex items-center justify-center bg-transparent dark:bg-input/30 overflow-hidden cursor-pointer mb-0"
-                onClick={() => document.getElementById("image-upload")?.click()}
+                onClick={() => document.getElementById('image-upload')?.click()}
               >
                 {imagePreview ? (
                   <img
@@ -218,7 +216,7 @@ export default function CreateNewPost({
                 disabled={isLoading}
                 className="cursor-pointer w-full py-3 bg-[var(--color-button-pink-active)] text-white hover:bg-[var(--color-brand-pink)] active:shadow-inner active:brightness-90 transition duration-150 ease-in-out mb-2"
               >
-                {isLoading ? "Posting..." : "Post"}
+                {isLoading ? 'Posting...' : 'Post'}
               </Button>
               <Button
                 variant="outline"

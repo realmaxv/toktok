@@ -136,7 +136,7 @@ export default function ProfileDetails() {
   return (
     <>
       <Header />
-      <div className="flex flex-col items-center px-6 py-8 min-h-[calc(100vh-120px)] overflow-y-auto pt-[72px] pb-[72px] text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-900">
+      <div className="flex flex-col items-center px-6 py-8 min-h-[calc(100vh-120px)] overflow-y-auto pt-[72px] pb-[72px] text-gray-800 dark:text-gray-100  ">
         {profile && (
           <>
             <img
@@ -163,7 +163,7 @@ export default function ProfileDetails() {
                 className="mt-4 px-4 py-2 rounded font-medium transition-colors text-white"
                 style={{ backgroundColor: '#ff4d67' }}
               >
-                {isFollowing ? 'Entfolgen' : 'Folgen'}
+                {isFollowing ? 'Unfollow' : 'Follow'}
               </button>
             )}
           </>
