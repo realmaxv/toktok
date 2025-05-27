@@ -1,9 +1,9 @@
-import placeholder from '@/assets/avatar_placeholder.png';
-import { supabase } from '@/lib/supabase/client';
-import { useQueryClient } from '@tanstack/react-query';
-import { Heart, MessageCircleMore } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import placeholder from "@/assets/avatar_placeholder.png";
+import { supabase } from "@/lib/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { Heart, MessageCircleMore } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 type FeedCardProps = {
   id: string;
@@ -51,19 +51,19 @@ function FeedCard({
     setIsProcessingLike(true);
 
     if (!userId) {
-      console.error('Kein userId übergeben – Like nicht möglich');
+      console.error("Kein userId übergeben – Like nicht möglich");
       setIsProcessingLike(false);
       return;
     }
 
     const { data: likeMatches, error } = await supabase
-      .from('post_likes')
-      .select('*')
-      .eq('post_id', id)
-      .eq('user_id', userId);
+      .from("post_likes")
+      .select("*")
+      .eq("post_id", id)
+      .eq("user_id", userId);
 
     if (error) {
-      console.error('Fehler beim Prüfen des Likes:', error);
+      console.error("Fehler beim Prüfen des Likes:", error);
       setIsProcessingLike(false);
       return;
     }
@@ -77,27 +77,27 @@ function FeedCard({
       setLikeCount((prev) => Math.max(prev - 1, 0));
 
       const { error: deleteError } = await supabase
-        .from('post_likes')
+        .from("post_likes")
         .delete()
-        .eq('post_id', id)
-        .eq('user_id', userId);
-
+        .eq("post_id", id)
+        .eq("user_id", userId);
+      //
       if (deleteError)
-        console.error('Fehler beim Entfernen des Likes:', deleteError);
+        console.error("Fehler beim Entfernen des Likes:", deleteError);
     } else {
       const { error: insertError } = await supabase
-        .from('post_likes')
+        .from("post_likes")
         .insert({ post_id: id, user_id: userId });
 
       if (insertError) {
-        console.error('Fehler beim Hinzufügen des Likes:', insertError);
+        console.error("Fehler beim Hinzufügen des Likes:", insertError);
       } else {
         setLiked(true);
         setLikeCount((prev) => prev + 1);
       }
     }
 
-    await queryClient.invalidateQueries({ queryKey: ['posts', userId] });
+    await queryClient.invalidateQueries({ queryKey: ["posts", userId] });
     setIsProcessingLike(false);
   };
 
@@ -140,14 +140,14 @@ function FeedCard({
               onClick={handleLike}
               disabled={isProcessingLike}
               className={`flex items-center space-x-2 ${
-                isProcessingLike ? 'opacity-50 pointer-events-none' : ''
+                isProcessingLike ? "opacity-50 pointer-events-none" : ""
               }`}
             >
               <Heart
                 className={`w-7 h-7 cursor-pointer transition-colors duration-300 ${
                   liked
-                    ? 'fill-[#ff4d67] text-[#ff4d67]'
-                    : 'fill-none text-gray-600 dark:text-gray-400'
+                    ? "fill-[#ff4d67] text-[#ff4d67]"
+                    : "fill-none text-gray-600 dark:text-gray-400"
                 }`}
               />
               <span className="font-semibold text-gray-600 dark:text-gray-400">
