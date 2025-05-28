@@ -88,12 +88,12 @@ export default function CreateNewPost({
 
   const handleSubmit = async () => {
     if (!session?.user?.id) {
-      setError('Du musst eingeloggt sein.');
+      setError('You must be logged in to create a post.');
       return;
     }
 
     if (!imageFile) {
-      setError('Bitte füge ein Bild hinzu.');
+      setError('Please add an image.');
       return;
     }
 
@@ -153,7 +153,7 @@ export default function CreateNewPost({
       <Header />
       <div
         className={cn(
-          'min-h-screen flex items-center justify-center pt-10',
+          'min-h-screen flex items-center justify-center pt-15 dark:bg-black pb-15',
           className
         )}
         {...props}
