@@ -109,7 +109,7 @@ function Header() {
       })();
 
   return (
-    <header className="flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-50 shadow-md bg-white/70 dark:bg-black/70 backdrop-blur-lg border-b">
+    <header className="flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-50 h-16 shadow-md bg-white/70 dark:bg-black/70 backdrop-blur-lg border-b">
       <div className="flex items-center gap-3">
         {isRoot ? (
           <img src={logo} alt="toktok-logo" className="w-6 h-6 " />
