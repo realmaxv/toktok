@@ -15,7 +15,8 @@ import ProfileDetails from "./pages/ProfileDetails";
 import ProfileEdit from "./pages/ProfileEdit";
 import Settings from "./pages/Settings";
 import RootLayout from "./layouts/RootLayout";
-import Shuffle from "./pages/Shuffle"; // 
+import Shuffle from "./pages/Shuffle"; //
+import Notifications from "./pages/Notifications";
 
 const SPLASH_DURATION = 1300; // lade animations dauer 1.3 Sekunden
 
@@ -69,7 +70,8 @@ function InnerApp() {
         { path: "/profile-detail", Component: ProfileDetails },
         { path: "/profile-edit", Component: ProfileEdit },
         { path: "/settings", Component: Settings },
-        { path: "/shuffle", Component: Shuffle }, // 
+        { path: "/shuffle", Component: Shuffle }, //
+        { path: "/notifications", Component: Notifications },
         { path: "*", Component: HomeFeed },
       ],
     },

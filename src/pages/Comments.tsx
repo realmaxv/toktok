@@ -1,15 +1,15 @@
-import { cn } from '@/lib/utils';
-import { supabase } from '@/lib/supabase/client';
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { useAuthContext } from '@/contexts/auth-context';
-import { Image, Smile, Hash, Sparkles, UserRoundPen } from 'lucide-react';
-import Footer from '@/components/Footer';
-import Header from '@/components/Header';
+import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase/client";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/contexts/auth-context";
+import { Image, Smile, Hash, Sparkles, UserRoundPen } from "lucide-react";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 
 interface Post {
   id: string;
@@ -26,9 +26,9 @@ interface Post {
 export default function Comments({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<'div'>) {
+}: React.ComponentPropsWithoutRef<"div">) {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-  const [editContent, setEditContent] = useState('');
+  const [editContent, setEditContent] = useState("");
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<
@@ -45,7 +45,7 @@ export default function Comments({
       } | null;
     }[]
   >([]);
-  const [caption, setCaption] = useState('');
+  const [caption, setCaption] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,16 +56,16 @@ export default function Comments({
   const handleDeletePost = async () => {
     if (!post?.id) return;
     const confirmed = window.confirm(
-      'Are you sure you want to delete this post?'
+      "Are you sure you want to delete this post?"
     );
     if (!confirmed) return;
     try {
-      const { error } = await supabase.from('posts').delete().eq('id', post.id);
+      const { error } = await supabase.from("posts").delete().eq("id", post.id);
       if (error) throw error;
-      navigate('/');
+      navigate("/");
     } catch (err) {
-      console.error('Error deleting post:', err);
-      setError('Could not delete post.');
+      console.error("Error deleting post:", err);
+      setError("Could not delete post.");
     }
   };
 
@@ -74,14 +74,14 @@ export default function Comments({
   useEffect(() => {
     async function fetchPost() {
       if (!id) {
-        setError('No post ID provided');
+        setError("No post ID provided");
         setIsLoading(false);
         return;
       }
       setIsLoading(true);
       try {
         const { data, error } = await supabase
-          .from('posts')
+          .from("posts")
           .select(
             `
             id,
@@ -97,7 +97,7 @@ export default function Comments({
             )
           `
           )
-          .eq('id', id)
+          .eq("id", id)
           .single();
 
         if (error) throw error;
@@ -105,9 +105,9 @@ export default function Comments({
           id: data.id,
           caption: data.caption,
           content_url: await (async () => {
-            if (data.content_url && !data.content_url.startsWith('http')) {
+            if (data.content_url && !data.content_url.startsWith("http")) {
               const { data: urlData } = await supabase.storage
-                .from('postcontent')
+                .from("postcontent")
                 .getPublicUrl(data.content_url);
               return urlData?.publicUrl ?? null;
             }
@@ -120,16 +120,16 @@ export default function Comments({
           nick_name: data.profiles?.nick_name ?? null,
           avatar_url:
             data.profiles?.avatar_url &&
-            !data.profiles.avatar_url.startsWith('http')
+            !data.profiles.avatar_url.startsWith("http")
               ? supabase.storage
-                  .from('useruploads')
+                  .from("useruploads")
                   .getPublicUrl(data.profiles.avatar_url).data.publicUrl
               : data.profiles?.avatar_url ?? null,
         });
 
         // Fetch comments for this post
         const { data: commentData, error: commentError } = await supabase
-          .from('comments')
+          .from("comments")
           .select(
             `
             id,
@@ -144,15 +144,15 @@ export default function Comments({
             )
           `
           )
-          .eq('post_id', id)
-          .order('created_at', { ascending: false });
+          .eq("post_id", id)
+          .order("created_at", { ascending: false });
 
         if (commentError) throw commentError;
         const processedComments = (commentData || []).map((comment) => {
           const avatarPath = comment.profiles?.avatar_url;
           const avatar =
-            avatarPath && !avatarPath.startsWith('http')
-              ? supabase.storage.from('useruploads').getPublicUrl(avatarPath)
+            avatarPath && !avatarPath.startsWith("http")
+              ? supabase.storage.from("useruploads").getPublicUrl(avatarPath)
                   .data.publicUrl
               : avatarPath;
           return {
@@ -166,7 +166,7 @@ export default function Comments({
         setComments(processedComments);
       } catch (error: unknown) {
         setError(
-          error instanceof Error ? error.message : 'Failed to load post'
+          error instanceof Error ? error.message : "Failed to load post"
         );
       } finally {
         setIsLoading(false);
@@ -184,20 +184,20 @@ export default function Comments({
 
   const handleImageUpload = async (file: File) => {
     if (!session?.user?.id) {
-      setError('You must be logged in to upload an image.');
+      setError("You must be logged in to upload an image.");
       return null;
     }
-    const fileExt = file.name.split('.').pop();
+    const fileExt = file.name.split(".").pop();
     const fileName = `${session.user.id}/${Date.now()}.${fileExt}`;
     const { error: uploadError } = await supabase.storage
-      .from('postcontent')
+      .from("postcontent")
       .upload(fileName, file);
     if (uploadError) {
-      setError('Failed to upload image: ' + uploadError.message);
+      setError("Failed to upload image: " + uploadError.message);
       return null;
     }
     const { data: publicData } = supabase.storage
-      .from('postcontent')
+      .from("postcontent")
       .getPublicUrl(fileName);
     return publicData?.publicUrl || null;
   };
@@ -209,15 +209,15 @@ export default function Comments({
 
   const handleReply = async () => {
     if (!session?.user?.id) {
-      setError('You must be logged in to reply.');
+      setError("You must be logged in to reply.");
       return;
     }
     if (!id) {
-      setError('Post ID is missing.');
+      setError("Post ID is missing.");
       return;
     }
-    if ((!caption || caption.trim() === '') && !imageFile) {
-      setError('Please provide a caption or an image.');
+    if ((!caption || caption.trim() === "") && !imageFile) {
+      setError("Please provide a caption or an image.");
       return;
     }
     setError(null);
@@ -226,10 +226,10 @@ export default function Comments({
       let contentUrl: string | null = null;
       if (imageFile) {
         contentUrl = await handleImageUpload(imageFile);
-        if (!contentUrl) throw new Error('Image upload failed.');
+        if (!contentUrl) throw new Error("Image upload failed.");
       }
 
-      const { error } = await supabase.from('comments').insert({
+      const { error } = await supabase.from("comments").insert({
         content: caption.trim(),
         post_id: id,
         user_id: session.user.id,
@@ -237,14 +237,23 @@ export default function Comments({
       });
 
       if (error) throw error;
-
+      // 💬 Notification nur senden, wenn man nicht sich selbst kommentiert
+      if (post?.user_id && post.user_id !== session.user.id) {
+        await supabase.from("notifications").insert({
+          user_id: post.user_id,
+          from_user_id: session.user.id,
+          post_id: id,
+          type: "comment",
+          is_read: false,
+        });
+      }
       // Reset inputs
-      setCaption('');
+      setCaption("");
       setImageFile(null);
 
       // Reload comments directly after submitting
       const { data: commentData, error: commentError } = await supabase
-        .from('comments')
+        .from("comments")
         .select(
           `
           id,
@@ -259,16 +268,16 @@ export default function Comments({
           )
         `
         )
-        .eq('post_id', id)
-        .order('created_at', { ascending: false });
+        .eq("post_id", id)
+        .order("created_at", { ascending: false });
 
       if (commentError) throw commentError;
 
       const processedComments = (commentData || []).map((comment) => {
         const avatarPath = comment.profiles?.avatar_url;
         const avatar =
-          avatarPath && !avatarPath.startsWith('http')
-            ? supabase.storage.from('useruploads').getPublicUrl(avatarPath).data
+          avatarPath && !avatarPath.startsWith("http")
+            ? supabase.storage.from("useruploads").getPublicUrl(avatarPath).data
                 .publicUrl
             : avatarPath;
         return {
@@ -282,18 +291,18 @@ export default function Comments({
       setComments(processedComments);
     } catch (error: unknown) {
       setError(
-        error instanceof Error ? error.message : 'Failed to submit comment'
+        error instanceof Error ? error.message : "Failed to submit comment"
       );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleEmojiClick = () => console.log('Emoji functionality placeholder');
-  const handleGifClick = () => console.log('GIF functionality placeholder');
+  const handleEmojiClick = () => console.log("Emoji functionality placeholder");
+  const handleGifClick = () => console.log("GIF functionality placeholder");
   const handleHashtagClick = () =>
-    console.log('Hashtag functionality placeholder');
-  const handleAIClick = () => console.log('AI text generation placeholder');
+    console.log("Hashtag functionality placeholder");
+  const handleAIClick = () => console.log("AI text generation placeholder");
 
   const timeSince = (date: Date) => {
     const now = new Date();
@@ -313,7 +322,7 @@ export default function Comments({
       <Header />
       <div
         className={cn(
-          'min-h-screen flex flex-col p-0 pt-16 pb-20 mx-auto w-full items-center',
+          "min-h-screen flex flex-col p-0 pt-16 pb-20 mx-auto w-full items-center",
           className
         )}
         {...props}
@@ -348,7 +357,7 @@ export default function Comments({
                     variant="outline"
                     size="icon"
                     onClick={() =>
-                      document.getElementById('image-upload')?.click()
+                      document.getElementById("image-upload")?.click()
                     }
                     aria-label="Upload image"
                   >
@@ -408,18 +417,18 @@ export default function Comments({
               <div className="flex flex-col gap-6">
                 <div className="flex items-center gap-2">
                   <img
-                    src={post.avatar_url || '/placeholder-avatar.png'}
+                    src={post.avatar_url || "/placeholder-avatar.png"}
                     alt="User avatar"
                     className="w-10 h-10 rounded-full"
                   />
                   <div>
                     <p className="text-sm">
                       {post.first_name || post.last_name
-                        ? `${post.first_name || ''} ${post.last_name || ''}`
-                        : 'Unknown'}
+                        ? `${post.first_name || ""} ${post.last_name || ""}`
+                        : "Unknown"}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      @{post.nick_name || 'unknown'} •{' '}
+                      @{post.nick_name || "unknown"} •{" "}
                       {timeSince(new Date(post.created_at))} ago
                     </p>
                   </div>
@@ -432,7 +441,7 @@ export default function Comments({
                       className="w-full h-auto rounded-lg object-cover max-h-96 max-w-full mx-auto"
                     />
                   )}
-                  <p className="text-sm">{post.caption || 'No caption'}</p>
+                  <p className="text-sm">{post.caption || "No caption"}</p>
                 </div>
 
                 {session?.user?.id === post.user_id && (
@@ -454,26 +463,31 @@ export default function Comments({
                   ) : (
                     comments.map((comment) => (
                       <div key={comment.id} className="flex gap-3">
-                        <img
-                          src={
-                            comment.profiles?.avatar_url ||
-                            '/placeholder-avatar.png'
-                          }
-                          alt="User avatar"
-                          className="w-8 h-8 rounded-full"
-                        />
+                        <Link to={`/profile/${comment.user_id}`}>
+                          <img
+                            src={
+                              comment.profiles?.avatar_url ||
+                              "/placeholder-avatar.png"
+                            }
+                            alt="User avatar"
+                            className="w-8 h-8 rounded-full hover:opacity-80 transition"
+                          />
+                        </Link>
                         <div>
-                          <p className="text-sm font-semibold">
+                          <Link
+                            to={`/profile/${comment.user_id}`}
+                            className="text-sm font-semibold hover:underline"
+                          >
                             {comment.profiles?.first_name ||
                             comment.profiles?.last_name
-                              ? `${comment.profiles?.first_name || ''} ${
-                                  comment.profiles?.last_name || ''
+                              ? `${comment.profiles?.first_name || ""} ${
+                                  comment.profiles?.last_name || ""
                                 }`
-                              : 'Unknown'}
+                              : "Unknown"}
                             <span className="ml-2 text-muted-foreground text-xs">
-                              @{comment.profiles?.nick_name || 'user'}
+                              @{comment.profiles?.nick_name || "user"}
                             </span>
-                          </p>
+                          </Link>
                           {editingCommentId === comment.id ? (
                             <>
                               <Textarea
@@ -488,9 +502,9 @@ export default function Comments({
                                   className="px-1.5 py-0.5 text-xs"
                                   onClick={async () => {
                                     const { error } = await supabase
-                                      .from('comments')
+                                      .from("comments")
                                       .update({ content: editContent })
-                                      .eq('id', comment.id);
+                                      .eq("id", comment.id);
                                     if (!error) {
                                       setComments((prev) =>
                                         prev.map((c) =>
@@ -511,9 +525,9 @@ export default function Comments({
                                   className="px-1.5 py-0.5 text-xs"
                                   onClick={async () => {
                                     const { error } = await supabase
-                                      .from('comments')
+                                      .from("comments")
                                       .delete()
-                                      .eq('id', comment.id);
+                                      .eq("id", comment.id);
                                     if (!error) {
                                       setComments((prev) =>
                                         prev.filter((c) => c.id !== comment.id)
@@ -583,7 +597,7 @@ export default function Comments({
                     onClick={handleReply}
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Replying...' : 'Reply'}
+                    {isLoading ? "Replying..." : "Reply"}
                   </Button>
                 </div>
               </div>
