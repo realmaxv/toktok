@@ -229,15 +229,13 @@ export default function Comments({
         if (!contentUrl) throw new Error("Image upload failed.");
       }
 
-      const { error } = await supabase.from("comments").insert({
+      const { error: insertError } = await supabase.from("comments").insert({
         content: caption.trim(),
         post_id: id,
         user_id: session.user.id,
-        created_at: new Date().toISOString(),
       });
 
-      if (error) throw error;
-      // 💬 Notification nur senden, wenn man nicht sich selbst kommentiert
+      if (insertError) throw insertError;
       if (post?.user_id && post.user_id !== session.user.id) {
         await supabase.from("notifications").insert({
           user_id: post.user_id,
