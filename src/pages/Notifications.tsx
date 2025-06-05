@@ -10,6 +10,7 @@ type Notification = {
   type: string;
   post_id: string | null;
   created_at: string | null;
+  user_id: string;
   from_user_id: string;
   from_user: {
     nick_name: string | null;
@@ -38,6 +39,7 @@ export default function Notifications() {
           type,
           post_id,
           created_at,
+          user_id,
           from_user_id,
           from_user:profiles!fk_notifications_from_user (
             nick_name,
@@ -45,7 +47,6 @@ export default function Notifications() {
           )
         `
         )
-        .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -132,7 +133,9 @@ export default function Notifications() {
                     <p className="text-sm">
                       <strong>@{n.from_user?.nick_name || "jemand"}</strong>{" "}
                       {n.type === "comment" &&
-                        "hat deinen Beitrag kommentiert."}
+                        (n.user_id === session?.user?.id
+                          ? "hat deinen Beitrag kommentiert."
+                          : "hat den Beitrag kommentiert, den du ebenfalls kommentiert hast.")}
                       {n.type === "like" && (
                         <>
                           hat deinen Beitrag{" "}
@@ -168,6 +171,7 @@ export default function Notifications() {
           ))}
         </ul>
       )}
+      <div className="mt-12"></div>
       <Footer />
     </div>
   );
