@@ -1,10 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase/client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase/client';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { Link } from 'react-router-dom';
 
 // Fisher-Yates 洗牌算法
 function shuffleArray<T>(array: T[]): T[] {
@@ -32,8 +32,8 @@ function getGridConfig(): { columns: number; cellHeight: number } {
 
 // 生成随机颜色
 function getRandomColor(): string {
-  const letters = "0123456789ABCDEF";
-  let color = "#";
+  const letters = '0123456789ABCDEF';
+  let color = '#';
   for (let i = 0; i < 6; i++) {
     color += letters[Math.floor(Math.random() * 16)];
   }
@@ -81,14 +81,14 @@ export default function Shuffle() {
   const usedItemIds = useRef<Set<string>>(new Set()); // 记录已使用的图片 ID
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ["shufflePosts"],
+    queryKey: ['shufflePosts'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("posts")
-        .select("id, content_url")
-        .order("created_at", { ascending: false });
+        .from('posts')
+        .select('id, content_url')
+        .order('created_at', { ascending: false });
       if (error) throw error;
-      console.log("Fetched data:", data);
+      console.log('Fetched data:', data);
       return data.map((p) => ({
         id: p.id,
         content_url: p.content_url?.trim() || null,
@@ -118,9 +118,9 @@ export default function Shuffle() {
       );
     };
 
-    window.addEventListener("resize", updateGridConfig);
+    window.addEventListener('resize', updateGridConfig);
     updateGridConfig();
-    return () => window.removeEventListener("resize", updateGridConfig);
+    return () => window.removeEventListener('resize', updateGridConfig);
   }, []);
 
   const generateGridItems = useCallback(
@@ -134,14 +134,14 @@ export default function Shuffle() {
 
       // 如果没有数据，全部用随机色块填充
       if (!data || data.length === 0) {
-        console.log("No data to shuffle, filling with random colors");
+        console.log('No data to shuffle, filling with random colors');
         while (occupiedCells < targetCells) {
           const size =
             COLOR_SIZES[Math.floor(Math.random() * COLOR_SIZES.length)];
           const cellsNeeded = size.rows * size.cols;
           if (occupiedCells + cellsNeeded <= targetCells) {
             shuffled.push({
-              id: "",
+              id: '',
               key: `empty-${Date.now()}-${itemCounter.current++}`,
               content_url: null,
               rows: size.rows,
@@ -152,7 +152,7 @@ export default function Shuffle() {
           } else {
             // 强制用 1x1 填充剩余空间
             shuffled.push({
-              id: "",
+              id: '',
               key: `empty-${Date.now()}-${itemCounter.current++}`,
               content_url: null,
               rows: 1,
@@ -230,7 +230,7 @@ export default function Shuffle() {
           size.cols <= gridConfig.columns
         ) {
           shuffled.push({
-            id: "",
+            id: '',
             key: `color-${Date.now()}-${itemCounter.current++}`,
             content_url: null,
             rows: size.rows,
@@ -241,7 +241,7 @@ export default function Shuffle() {
         } else {
           // 强制用 1x1 填充剩余空间
           shuffled.push({
-            id: "",
+            id: '',
             key: `color-${Date.now()}-${itemCounter.current++}`,
             content_url: null,
             rows: 1,
@@ -252,7 +252,7 @@ export default function Shuffle() {
         }
       }
 
-      console.log("Generated grid items:", shuffled);
+      console.log('Generated grid items:', shuffled);
       return shuffled;
     },
     [data, gridConfig]
@@ -272,7 +272,7 @@ export default function Shuffle() {
     const newCells = totalCells / 2; // 每次加载半个页面高度的单元格
     const newItems = generateGridItems(gridItems, newCells);
     setGridItems(newItems);
-    console.log("Loaded more items:", newItems.length);
+    console.log('Loaded more items:', newItems.length);
   }, [gridItems, totalCells, generateGridItems]);
 
   // 设置 Intersection Observer 检测底部
@@ -282,11 +282,11 @@ export default function Shuffle() {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !isLoading) {
-          console.log("Reached bottom, loading more...");
+          console.log('Reached bottom, loading more...');
           loadMore();
         }
       },
-      { rootMargin: "200px", threshold: 0.1 }
+      { rootMargin: '200px', threshold: 0.1 }
     );
 
     if (loadMoreRef.current) {
@@ -302,24 +302,24 @@ export default function Shuffle() {
   useEffect(() => {
     const handleMouseUp = (e: MouseEvent) => {
       try {
-        if (!e.target || !("className" in e.target)) {
-          console.warn("Event target lacks className:", e.target);
+        if (!e.target || !('className' in e.target)) {
+          console.warn('Event target lacks className:', e.target);
           e.stopPropagation();
           return;
         }
-        if (typeof e.target.className !== "string") {
-          console.warn("Non-string className detected:", e.target.className);
+        if (typeof e.target.className !== 'string') {
+          console.warn('Non-string className detected:', e.target.className);
           e.stopPropagation();
           return;
         }
       } catch (err) {
-        console.error("MouseUp error handled:", err);
+        console.error('MouseUp error handled:', err);
         e.stopPropagation();
       }
     };
-    document.addEventListener("mouseup", handleMouseUp, { capture: true });
+    document.addEventListener('mouseup', handleMouseUp, { capture: true });
     return () =>
-      document.removeEventListener("mouseup", handleMouseUp, { capture: true });
+      document.removeEventListener('mouseup', handleMouseUp, { capture: true });
   }, []);
 
   if (isLoading) {
@@ -362,15 +362,8 @@ export default function Shuffle() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-stone-200 dark:bg-stone-950">
+    <div className="flex pt-20 flex-col min-h-screen bg-stone-200 dark:bg-stone-950">
       <Header />
-      <Button
-        onClick={() => setGridItems(generateGridItems([], totalCells))}
-        className="bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)] ml-2"
-      >
-        Shuffle
-      </Button>
-
       <div className="flex-1 p-4 flex justify-center">
         {gridItems.length === 0 ? (
           <div className="flex items-center justify-center h-full">
@@ -385,13 +378,13 @@ export default function Shuffle() {
           >
             {gridItems.map((item) => (
               <Link
-                to={item.content_url && item.id ? `/comments/${item.id}` : "#"}
+                to={item.content_url && item.id ? `/comments/${item.id}` : '#'}
                 key={item.key} // 使用 key 字段作为 React 的 key
                 className="relative"
                 style={{
                   gridRow: `span ${item.rows}`,
                   gridColumn: `span ${item.cols}`,
-                  aspectRatio: "1 / 1",
+                  aspectRatio: '1 / 1',
                 }}
               >
                 <div
@@ -399,15 +392,15 @@ export default function Shuffle() {
                   style={{
                     backgroundImage: item.content_url
                       ? `url("${item.content_url}")`
-                      : "none",
-                    backgroundColor: item.backgroundColor || "transparent",
+                      : 'none',
+                    backgroundColor: item.backgroundColor || 'transparent',
                   }}
                 />
               </Link>
             ))}
             <div
               ref={loadMoreRef}
-              style={{ height: "100px", background: "transparent" }}
+              style={{ height: '100px', background: 'transparent' }}
             />
           </div>
         )}

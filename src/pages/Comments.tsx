@@ -593,7 +593,7 @@ export default function Comments({
                   </div>
                   <Button
                     type="button"
-                    className="text-lg h-13 bg-[var(--color-button-pink)] text-white hover:bg-[var(--color-brand-pink)]"
+                    className="text-lg h-13 bg-[var(--color-button-pink-active)] text-white hover:bg-[var(--color-brand-pink)]"
                     onClick={handleReply}
                     disabled={isLoading}
                   >

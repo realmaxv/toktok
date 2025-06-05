@@ -130,6 +130,7 @@ function Header() {
           </NavLink>
         </div>
       ) : (
+
         <div className="flex items-center gap-4">
           <NavLink
             to="/notifications"
@@ -152,6 +153,7 @@ function Header() {
             />
           </NavLink>
         </div>
+
       )}
     </header>
   );

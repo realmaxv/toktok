@@ -233,7 +233,7 @@ export default function ProfileEdit() {
         <Button
           type="submit"
           disabled={saving}
-          className="w-full max-w-md py-3 bg-[var(--color-brand-pink)] text-white font-semibold rounded hover:bg-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full max-w-md py-3  disabled:cursor-not-allowed bg-[var(--color-button-pink-active)] text-white hover:bg-[var(--color-brand-pink)]"
         >
           {saving ? 'Saving…' : 'Save Changes'}
         </Button>

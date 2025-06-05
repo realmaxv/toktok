@@ -75,8 +75,8 @@ const Footer: React.FC = () => {
       if (
         sectionRef.current &&
         footerRef.current &&
-        !sectionRef.current.contains(e.target as Node) &&
-        !footerRef.current.contains(e.target as Node)
+        !sectionRef.current.contains(e.target as Element) &&
+        !footerRef.current.contains(e.target as Element)
       ) {
         setTranslateY(0);
       }
@@ -196,8 +196,8 @@ const Footer: React.FC = () => {
               </NavLink>
             </div>
             <div className="flex items-center gap-3 p-3 text-lg">
-              <Logout />
               <ModeToggle />
+              <Logout />
             </div>
           </div>
 

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 
 function FeedList() {
   const [currentUserId, setCurrentUserId] = useState<string>('');
+
   useEffect(() => {
     const getInitialUser = async () => {
       const {
